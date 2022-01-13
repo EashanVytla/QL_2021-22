@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class S4T_Encoder {
     DcMotor encoder;
-    public float distance;
+    public double distance;
     boolean reverse = false;
 
     public S4T_Encoder(HardwareMap hardwareMap, String name){
@@ -20,7 +20,10 @@ public class S4T_Encoder {
     }
 
     public void update(){
-        distance = encoder.getCurrentPosition();
+        double val = encoder.getCurrentPosition();
+        if(val != 0) {
+            distance = val;
+        }
     }
 
     public double getDist(){

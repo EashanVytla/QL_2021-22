@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Wrapper.Caching_Motor;
 import org.firstinspires.ftc.teamcode.Wrapper.Caching_Servo;
 import org.firstinspires.ftc.teamcode.Wrapper.GamepadEx;
@@ -12,14 +13,14 @@ public class V4B_Arm {
     Caching_Servo left_servo;
     Caching_Servo right_servo;
     Caching_Servo release_servo;
-    Caching_Motor rSlides;
-    Caching_Motor lSlides;
 
     private boolean out = false;
     private boolean release = false;
     ElapsedTime time = new ElapsedTime();
 
     Caching_Servo front;
+
+    boolean partialToggle = false;
 
     /*
         Max Out:
@@ -39,8 +40,6 @@ public class V4B_Arm {
         left_servo = new Caching_Servo(map, "left_arm");
         right_servo = new Caching_Servo(map, "right_arm");
         release_servo = new Caching_Servo(map, "release_arm");
-        rSlides = new Caching_Motor(map, "rSlide");
-        lSlides = new Caching_Motor(map, "lSlide");
         front = new Caching_Servo(map, "frontGate");
     }
 
@@ -49,17 +48,22 @@ public class V4B_Arm {
     }
 
     public void reset(){
-        left_servo.setPosition(0.025);
-        right_servo.setPosition(0.95);
+        left_servo.setPosition(0.12);
+        right_servo.setPosition(0.97);
     }
 
     public void V4BOutPose(){
-        left_servo.setPosition(0.67);
-        right_servo.setPosition(0.35);
+        left_servo.setPosition(0.87);
+        right_servo.setPosition(0.23);
+    }
+
+    public void V4BPartialOutPose(){
+        left_servo.setPosition(0.669);
+        right_servo.setPosition(0.4);
     }
 
     public void release(){
-        release_servo.setPosition(0.75);
+        release_servo.setPosition(0.55);
     }
 
     public void close(){
@@ -71,16 +75,20 @@ public class V4B_Arm {
     }
 
     public void closeFront(){
-        front.setPosition(0.4);
+        front.setPosition(1.0);
     }
 
     public void openFront(){
         front.setPosition(0.8);
     }
 
-    public void operate(GamepadEx gamepad, GamepadEx gamepad2){
+    public void operate(GamepadEx gamepad, GamepadEx gamepad2, Telemetry telemetry){
         if(gamepad.isPress(GamepadEx.Control.left_bumper)){
             out = !out;
+        }
+
+        if(gamepad.isPress(GamepadEx.Control.a)){
+            partialToggle = !partialToggle;
         }
 
         if(gamepad.isPress(GamepadEx.Control.right_bumper)){
@@ -94,31 +102,30 @@ public class V4B_Arm {
             reset();
             time.reset();
         } else{
-            V4BOutPose();
+            if(partialToggle) {
+                V4BPartialOutPose();
+            }else{
+                V4BOutPose();
+            }
+
+            closeFront();
 
             if(!release){
-                closeFront();
                 close();
             } else{
                 release();
             }
         }
 
-        if(gamepad2.gamepad.right_stick_y >= 0) {
-            rSlides.setPower((gamepad2.gamepad.right_stick_y) + 0.25);
-            lSlides.setPower(-(gamepad2.gamepad.right_stick_y) - 0.25);
-        } else {
-            rSlides.setPower((gamepad2.gamepad.right_stick_y*0.3) + 0.25);
-            lSlides.setPower(-(gamepad2.gamepad.right_stick_y*0.3) - 0.25);
-        }
+
+
+        telemetry.addData("Partial Toggle: ", partialToggle);
     }
 
     public void write(){
         left_servo.write();
         right_servo.write();
         release_servo.write();
-        lSlides.write();
-        rSlides.write();
         front.write();
     }
 }

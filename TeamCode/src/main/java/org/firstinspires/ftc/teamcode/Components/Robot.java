@@ -14,6 +14,8 @@ public class Robot {
     public Mecanum_Drive drive;
     public V4B_Arm arm;
     public Intake intake;
+    public Carousel carousel;
+    public Slides slides;
     public S4T_Localizer localizer;
     private S4T_Encoder encoderLY;
     private S4T_Encoder encoderLX;
@@ -23,6 +25,8 @@ public class Robot {
 
     private Telemetry telemetry;
 
+    public static boolean red = true;
+
     private static Pose2d startPos = new Pose2d(0, 0, 0);
     List<LynxModule> allHubs;
 
@@ -30,9 +34,11 @@ public class Robot {
         this.hardwareMap = map;
         this.telemetry = telemetry;
 
+        red = true;
+
         allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule module : allHubs) {
-            module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
         encoderLY = new S4T_Encoder(map, "back_left");
@@ -40,41 +46,49 @@ public class Robot {
         encoderRY = new S4T_Encoder(map, "back_right");
         encoderRX = new S4T_Encoder(map, "front_right");
 
+        carousel = new Carousel(hardwareMap, telemetry);
+
         drive = new Mecanum_Drive(map, telemetry);
         arm = new V4B_Arm(map);
         intake = new Intake(map);
+        slides = new Slides(map, telemetry);
 
-        updateBulkData();
+        localizer = new S4T_Localizer(telemetry);
+        setStartPose(new Pose2d(0, 0, 0));
 
-        localizer = new S4T_Localizer(hardwareMap, telemetry);
+        telemetry.addData("Localizer Position", localizer.getPose());
+        telemetry.addLine("Shankar was here :)");
+        telemetry.update();
     }
 
     public void operate(GamepadEx gamepad1ex, GamepadEx gamepad2ex) {
-        updateBulkData();
-        updatePos();
-
-        drive.drive(gamepad1ex.gamepad, 1.0, 1.0, 0.6, 1.0/*, getPos().getHeading() + Math.toRadians(90)*/);
+        drive.driveCentric(gamepad1ex.gamepad, 1.0, 1.0, getPos().getHeading());
 
         intake.intake(gamepad1ex, telemetry);
 
-        arm.operate(gamepad1ex, gamepad2ex);
+        arm.operate(gamepad1ex, gamepad2ex, telemetry);
+        carousel.operate(gamepad1ex.gamepad);
+
+        if(gamepad1ex.isPress(GamepadEx.Control.start)){
+            localizer.reset();
+        }
+
+        slides.operate(gamepad1ex, gamepad2ex);
 
         arm.write();
         intake.write();
         drive.write();
+        carousel.write();
+        slides.write();
 
         telemetry.addData("Robot Position:", getPos());
         gamepad1ex.loop();
+        gamepad2ex.loop();
+        updatePos();
     }
 
     public void setStartPose(Pose2d startPos){
         this.startPos = startPos;
-    }
-
-    public void updateBulkData(){
-        for (LynxModule module : allHubs) {
-            module.clearBulkCache();
-        }
     }
 
     public void updatePos(){
@@ -83,22 +97,6 @@ public class Robot {
         encoderRX.update();
         encoderRY.update();
         localizer.update(getRawLeft_X_Dist(), getRawLeft_Y_Dist(), getRawRight_X_Dist(), getRawRight_Y_Dist());
-    }
-
-    public double getLeft_X_Dist(){
-        return encoderLX.getDist();
-    }
-
-    public double getRight_X_Dist(){
-        return encoderRX.getDist();
-    }
-
-    public double getLeft_Y_Dist(){
-        return encoderLY.getDist();
-    }
-
-    public double getRight_Y_Dist(){
-        return encoderRY.getDist();
     }
 
     public double getRawLeft_X_Dist(){

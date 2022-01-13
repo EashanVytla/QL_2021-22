@@ -32,29 +32,14 @@ public class Mecanum_Drive{
     PIDFController PID_Y;
     PIDFController PID_Z;
 
-    PIDFController PID_X_MPC;
-    PIDFController PID_Y_MPC;
-    PIDFController PID_Z_MPC;
+    public static double kp = 0.13;
+    public static double ki = 0;
+    public static double kd = 0.009;
 
-    public static double kp = 0.095;
-    public static double ki = 0.0;
-    public static double kd = 0.015;
+    public static double kpr = 4.0;
+    public static double kir = 0;
+    public static double kdr = 0.1;
 
-    public static double kps = 0.3575;
-    public static double kis = 0.0;
-    public static double kds = 0.035;
-
-    public static double kpr = 2.75;
-    public static double kir = 0.0;
-    public static double kdr = 0.15;
-
-    public double kpMPC = 0.065;
-    public double kiMPC = 0;
-    public double kdMPC = 0.005;
-
-    public double kprMPC = 3.5;
-    public double kirMPC = 0;
-    public double kdrMPC = 0.0005;
     TelemetryPacket packet = new TelemetryPacket();
     FtcDashboard dashboard = FtcDashboard.getInstance();
     public static boolean isTurning = false;
@@ -78,13 +63,10 @@ public class Mecanum_Drive{
         motors[2].motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motors[3].motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        PID_X = new PIDFController(new PIDCoefficients(kps, kis, kds));
+        PID_X = new PIDFController(new PIDCoefficients(kp, ki, kd));
         PID_Y = new PIDFController(new PIDCoefficients(kp, ki, kd));
         PID_Z = new PIDFController(new PIDCoefficients(kpr, kir, kdr));
 
-        PID_X_MPC = new PIDFController(new PIDCoefficients(kpMPC, kiMPC, kdMPC));
-        PID_Y_MPC = new PIDFController(new PIDCoefficients(kpMPC, kiMPC, kdMPC));
-        PID_Z_MPC = new PIDFController(new PIDCoefficients(kprMPC, kirMPC, kdrMPC));
         counter = 0;
 
         motors[1].motor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -184,6 +166,6 @@ public class Mecanum_Drive{
         PID_Y.setTargetPosition(targetPos.getY());
         PID_Z.setTargetPosition(target_heading);
 
-        setPowerCentic(PID_X.update(currentPos.getX()), -PID_Y.update(currentPos.getY()), PID_Z.update(heading), currentPos.getHeading());
+        setPowerCentic(-PID_X.update(currentPos.getX()), PID_Y.update(currentPos.getY()), -PID_Z.update(heading), currentPos.getHeading());
     }
 }

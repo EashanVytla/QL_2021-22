@@ -25,9 +25,6 @@ public class LinearTeleOp extends LinearOpMode {
         robot.arm.start();
 
         while (opModeIsActive()) {
-            robot.updateBulkData();
-            robot.updatePos();
-
             robot.operate(gamepadEx1, gamepadEx2);
             telemetry.update();
         }

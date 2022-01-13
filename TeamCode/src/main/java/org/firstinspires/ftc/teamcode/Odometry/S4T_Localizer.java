@@ -17,9 +17,9 @@ import org.firstinspires.ftc.teamcode.Wrapper.GamepadEx;
 
 @Config
 public class S4T_Localizer {
-    public static double TRACK_WIDTH1 = 1633.0490823301650664905740750245;//1632.3328850862515374796140980894;//1631.8838407825279756394090331855;
+    public static double TRACK_WIDTH1 = 2700.9478036822926787400512887446;//2972.6801115761118919576340438955;//3401.1838107829019210680625887394;
 
-    public static double TRACK_WIDTH2 = 2867.653764629770159883747648446;//2629.478392292748789905613096559;//2628.5575672648599668915216976423;
+    public static double TRACK_WIDTH2 = 2861.906502795896161647649068102;
 
     private final double EPSILON = 1e-6;
     private static Pose2d myPose = new Pose2d(0, 0, 0);
@@ -38,23 +38,21 @@ public class S4T_Localizer {
     double prevelxRaw = 0;
     double preverxRaw = 0;
 
-    public static double heading = 0;
+    private static double heading = 0;
     Telemetry telemetry;
     public static double k_strafe = 1.0;
-    public static double k_vert = 0.5;
-    public double TICKS_TO_INCHES_VERT = 203.766403;//201.67339734597755609;
-    public double TICKS_TO_INCHES_STRAFE = 338.491591;//335.381388888888888;
+    public static double k_vert = 1.0;
+    public double TICKS_TO_INCHES_VERT = 303.547368;
+    public double TICKS_TO_INCHES_STRAFE = 303.347368;//335.381388888888888;
 
-    public static double clipping_strafe = 0.075;
-    public static double clipping_vert = 0.075;
+    public static double clipping_strafe = 0.05;
+    public static double clipping_vert = 0.05;
     public final Vector2d DASHBOARD_OFFSET_FROM_CENTER = new Vector2d(-48, -55);
 
-    private HardwareMap hardwareMap;
     private TelemetryPacket packet;
 
-    public S4T_Localizer(HardwareMap map, Telemetry telemetry){
+    public S4T_Localizer(Telemetry telemetry){
         this.telemetry = telemetry;
-        this.hardwareMap = map;
 
         /*if(slamra == null){
             try{
@@ -87,7 +85,6 @@ public class S4T_Localizer {
     public double ws = 1;
     double dtheta = 0;
     public Pose2d dashboardPos = new Pose2d(0, 0, 0);
-    private double absoluteHeading = 0;
 
     public void update(double elxRaw, double elyRaw, double erxRaw, double eryRaw){
         double y = ((elyRaw + eryRaw)/2) / TICKS_TO_INCHES_VERT;
@@ -121,9 +118,6 @@ public class S4T_Localizer {
 
         dtheta = weightedTheta(dx, dy, dthetavert, -dthetastrafe);
 
-        absoluteHeading += dtheta;
-        heading %= 2 * Math.PI;
-
         heading += dtheta;
         heading %= 2 * Math.PI;
 
@@ -137,10 +131,6 @@ public class S4T_Localizer {
         myPose = new Pose2d(myPose.getX(), myPose.getY(), (Math.toRadians(360) - heading) % Math.toRadians(360));
 
         dashboardPos = new Pose2d(myPose.getY() + DASHBOARD_OFFSET_FROM_CENTER.getY(), -myPose.getX() + DASHBOARD_OFFSET_FROM_CENTER.getX(), (2 * Math.PI) - myPose.getHeading());
-    }
-
-    public double getAbsoluteHeading(){
-        return absoluteHeading;
     }
 
     public void reset(){
@@ -178,8 +168,7 @@ public class S4T_Localizer {
         addPacket("wf", wf);
         addPacket("ws", ws);
 
-        //return value;
-        return dthetavert;
+        return value;
     }
 
     private double prevdx = 0;

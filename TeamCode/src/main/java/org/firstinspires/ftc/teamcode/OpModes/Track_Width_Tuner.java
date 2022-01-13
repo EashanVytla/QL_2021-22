@@ -40,8 +40,6 @@ public class Track_Width_Tuner extends LinearOpMode {
 
         while (opModeIsActive())
         {
-            robot.updateBulkData();
-
             if(gamepad1ex.isPress(GamepadEx.Control.a)){
                 running = !running;
             }
@@ -52,13 +50,13 @@ public class Track_Width_Tuner extends LinearOpMode {
             robot.updatePos();
 
             if(running){
-                robot.drive.setPower(0, 0, 0.2);
-                robot.drive.write();
-                //robot.GoTo(0, 0, 14 * Math.PI, 1.0, 1.0, 0.3);
+                //robot.drive.setPower(0, 0, 0.3);
+                //robot.drive.write();
+                robot.GoTo(0, 0, 14 * Math.PI, 1.0, 1.0, 0.3);
             }else if(running2){
-                robot.drive.setPower(0, 0, -0.2);
-                robot.drive.write();
-                //robot.GoTo(0, 0, -14 * Math.PI, 1.0, 1.0, 0.3);
+                //robot.drive.setPower(0, 0, -0.3);
+                //robot.drive.write();
+                robot.GoTo(0, 0, -14 * Math.PI, 1.0, 1.0, 0.3);
             }else{
                 robot.drive.driveCentric(gamepad1, 1.0, 1.0, robot.getPos().getHeading());
                 robot.drive.write();
@@ -69,10 +67,6 @@ public class Track_Width_Tuner extends LinearOpMode {
             robot.localizer.setPacket(packet);
 
             telemetry.addData("Pos: ", robot.getPos());
-            telemetry.addData("Right X: ", robot.getRight_X_Dist());
-            telemetry.addData("Left X: ", robot.getLeft_X_Dist());
-            telemetry.addData("Right Y: ", robot.getRight_Y_Dist());
-            telemetry.addData("Left Y: ", robot.getLeft_Y_Dist());
 
             telemetry.addData("Right X RAW", robot.getRawRight_X_Dist());
             telemetry.addData("Left X RAW", robot.getRawLeft_X_Dist());
