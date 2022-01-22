@@ -22,9 +22,9 @@ public class Slides {
     public static double kp = 0.02;
     public static double ki = 0.0;
     public static double kd = 0.0008;
-    public static double gff = 0.3;
+    public static double gff = 0.25;
 
-    public static double high_goal_position = 220;
+    public static double high_goal_position = 270;
 
     public PIDFController controller;
     Telemetry telemetry;
@@ -135,12 +135,12 @@ public class Slides {
                 mRobotState = STATE.DOWN;
             }
 
-            if(gamepad2.isPress(GamepadEx.Control.a)){
+            if(gamepad2.isPress(GamepadEx.Control.left_bumper)){
                 mRobotState = STATE.AUTOMATION;
             }
         }else if(mRobotState == STATE.AUTOMATION){
             setBrake();
-            if(gamepad2.isPress(GamepadEx.Control.a)){
+            if(gamepad2.isPress(GamepadEx.Control.left_bumper)){
                 mRobotState = STATE.DOWN;
             }else{
                 setPosition(high_goal_position);
@@ -162,7 +162,7 @@ public class Slides {
             telemetry.addData("Left Motor power", lSlides.motor.getPower());
             telemetry.addData("Right Motor power", rSlides.motor.getPower());
 
-            if(gamepad2.isPress(GamepadEx.Control.a)){
+            if(gamepad2.isPress(GamepadEx.Control.left_bumper)){
                 mRobotState = STATE.AUTOMATION;
             }
 

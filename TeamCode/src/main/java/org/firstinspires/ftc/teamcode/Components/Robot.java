@@ -63,8 +63,9 @@ public class Robot {
 
     public void operate(GamepadEx gamepad1ex, GamepadEx gamepad2ex) {
         drive.driveCentric(gamepad1ex.gamepad, 1.0, 1.0, getPos().getHeading());
+        //drive.drive(gamepad1ex.gamepad, 1.0, 1.0);
 
-        intake.intake(gamepad1ex, telemetry);
+        intake.intake(gamepad1ex, gamepad2ex);
 
         arm.operate(gamepad1ex, gamepad2ex, telemetry);
         carousel.operate(gamepad1ex.gamepad);

@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Wrapper.GamepadEx;
 @TeleOp
 public class Servo_TesterRelease extends LinearOpMode {
     //Set the hardware mapping name of the servo
-    final String name = "frontGate";
+    final String name = "release_arm";
 
     Servo servo;
     private double pos;
@@ -62,5 +62,5 @@ public class Servo_TesterRelease extends LinearOpMode {
     @Config
     class ServoTesterRelease {
         //Set the set/start position of the servo in dashboard
-        public static double pos = 0.01;
+        public static double pos = 0.55;
     }

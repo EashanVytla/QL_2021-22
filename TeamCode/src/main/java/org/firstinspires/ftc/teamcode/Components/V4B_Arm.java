@@ -48,18 +48,18 @@ public class V4B_Arm {
     }
 
     public void reset(){
-        left_servo.setPosition(0.12);
-        right_servo.setPosition(0.97);
+        left_servo.setPosition(1.0);
+        right_servo.setPosition(0.02);
     }
 
     public void V4BOutPose(){
-        left_servo.setPosition(0.87);
-        right_servo.setPosition(0.23);
+        left_servo.setPosition(0.047);
+        right_servo.setPosition(1.0);
     }
 
     public void V4BPartialOutPose(){
-        left_servo.setPosition(0.669);
-        right_servo.setPosition(0.4);
+        left_servo.setPosition(0.3);
+        right_servo.setPosition(0.725);
     }
 
     public void release(){
@@ -83,7 +83,7 @@ public class V4B_Arm {
     }
 
     public void operate(GamepadEx gamepad, GamepadEx gamepad2, Telemetry telemetry){
-        if(gamepad.isPress(GamepadEx.Control.left_bumper)){
+        if(gamepad.isPress(GamepadEx.Control.left_bumper) || gamepad2.isPress(GamepadEx.Control.left_bumper)){
             out = !out;
         }
 

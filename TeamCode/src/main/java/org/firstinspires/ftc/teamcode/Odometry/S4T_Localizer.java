@@ -17,9 +17,9 @@ import org.firstinspires.ftc.teamcode.Wrapper.GamepadEx;
 
 @Config
 public class S4T_Localizer {
-    public static double TRACK_WIDTH1 = 2700.9478036822926787400512887446;//2972.6801115761118919576340438955;//3401.1838107829019210680625887394;
+    public static double TRACK_WIDTH1 = 2706.0796664028780150111768518702;
 
-    public static double TRACK_WIDTH2 = 2861.906502795896161647649068102;
+    public static double TRACK_WIDTH2 = 2856.0832002669893689733497988488;
 
     private final double EPSILON = 1e-6;
     private static Pose2d myPose = new Pose2d(0, 0, 0);

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Components;
 
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.apache.commons.math3.util.IterationListener;
@@ -18,7 +19,7 @@ public class Intake {
         intakeL = new Caching_Motor(map, "intakeL");
     }
 
-    public void intake(GamepadEx gamepadEx, Telemetry telemetry){
+    public void intake(GamepadEx gamepadEx, GamepadEx gamepad2Ex){
         /*intakeR.setPower(gamepadEx.gamepad.right_trigger - gamepadEx.gamepad.left_trigger);
         intakeL.setPower(-gamepadEx.gamepad.right_trigger + gamepadEx.gamepad.left_trigger);*/
 
@@ -26,20 +27,24 @@ public class Intake {
             intakeToggle = !intakeToggle;
         }
 
-        if(Math.abs(gamepadEx.gamepad.left_trigger) < 0.1) {
-            if (intakeToggle) {
-                intakeR.setPower(1.0);
-                intakeL.setPower(-1.0);
-            }else{
-                intakeL.setPower(0.0);
-                intakeR.setPower(0.0);
-            }
+        if(Math.abs(gamepad2Ex.gamepad.left_trigger + gamepad2Ex.gamepad.right_trigger) > 0.1) {
+            intakeR.setPower(-gamepad2Ex.gamepad.left_trigger - gamepad2Ex.gamepad.right_trigger);
+            intakeL.setPower(gamepad2Ex.gamepad.left_trigger + gamepad2Ex.gamepad.right_trigger);
         }else{
-            intakeR.setPower(-0.5);
-            intakeL.setPower(0.5);
+            if(Math.abs(gamepadEx.gamepad.left_trigger) < 0.1) {
+                if (intakeToggle) {
+                    intakeR.setPower(1.0);
+                    intakeL.setPower(-1.0);
+                }else{
+                    intakeL.setPower(0.0);
+                    intakeR.setPower(0.0);
+                }
+            }else{
+                intakeR.setPower(-0.5);
+                intakeL.setPower(0.5);
+            }
         }
 
-        telemetry.addData("Power", power);
     }
 
     public void write(){
