@@ -19,12 +19,12 @@ public class PID_Tuner extends OpMode {
 
     @Override
     public void loop() {
-        robot.GoTo(new Pose2d(PID_Tuner_Constants.x, PID_Tuner_Constants.y, Math.toRadians(PID_Tuner_Constants.theta)), new Pose2d(1, 1, 1));
+        robot.GoTo(new Pose2d(PID_Tuner_Constants.x, PID_Tuner_Constants.y, Math.toRadians(PID_Tuner_Constants.theta)), new Pose2d(0.5, 1, 1));
     }
 }
 
 @Config
-class PID_Tuner_Constants{
+class PID_Tuner_Constants {
     public static double x = 0;
     public static double y = 0;
     public static double theta = 0;

@@ -21,8 +21,8 @@ public class DuckDetector extends OpenCvPipeline {
 
     int numContoursFound = 0;
 
-    public Scalar lowerHSV = new Scalar(19,89,172);
-    public Scalar upperHSV = new Scalar(59,250,250);
+    public Scalar lowerHSV = new Scalar(46.8, 66.6, 80.8);
+    public Scalar upperHSV = new Scalar(102.0, 255, 255);
 
     public double threshold = 100;
 

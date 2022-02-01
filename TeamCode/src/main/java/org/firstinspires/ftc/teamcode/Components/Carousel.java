@@ -11,12 +11,10 @@ import org.firstinspires.ftc.teamcode.Wrapper.GamepadEx;
 
 public class Carousel {
     CRServo left;
-    CRServo right;
     Telemetry telemetry;
 
     public Carousel(HardwareMap map, Telemetry telemetry){
-        left = map.get(CRServo.class, "carousel_left");
-        right = map.get(CRServo.class, "carousel_right");
+        left = map.get(CRServo.class, "carousel_right");
     }
 
     public void write(){
@@ -24,11 +22,7 @@ public class Carousel {
     }
 
     public void runCarousel(){
-        if(Robot.red) {
-            left.setPower(0.5);
-        }else{
-            right.setPower(0.5);
-        }
+        left.setPower(0.5);
     }
 
     public void operate(Gamepad gamepad){
@@ -37,19 +31,9 @@ public class Carousel {
         }else{
             left.setPower(0);
         }
-
-        if(gamepad.dpad_right){
-            right.setPower(1);
-        }else{
-            right.setPower(0);
-        }
     }
 
     public void stopCarousel(){
-        if(Robot.red) {
-            left.setPower(0);
-        }else{
-            right.setPower(0);
-        }
+        left.setPower(0);
     }
 }

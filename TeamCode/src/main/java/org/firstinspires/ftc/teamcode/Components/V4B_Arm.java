@@ -18,22 +18,28 @@ public class V4B_Arm {
     private boolean release = false;
     ElapsedTime time = new ElapsedTime();
 
-    Caching_Servo front;
+    public Caching_Servo front;
 
     boolean partialToggle = false;
+    boolean lowGoal = false;
 
     /*
-        Max Out:
-            Left: 0.985
-            Right: 0.01
 
-        Zero position(in):
-            Right: 0.025
-            Left: 0.95
+         100 degree angle:
+            Right:0.6
+            Left: 0.385;
 
-        Mid Position:
-            Right: 0.35
-            Left: 0.67
+          150 degree angle:
+          Right: 0.185
+          Left:0.8
+
+          Low Level:
+          Right:0.1
+          Left:0.89
+
+          Low Level 2:
+          Right:0.05
+          Left:0.945
      */
 
     public V4B_Arm(HardwareMap map){
@@ -41,6 +47,8 @@ public class V4B_Arm {
         right_servo = new Caching_Servo(map, "right_arm");
         release_servo = new Caching_Servo(map, "release_arm");
         front = new Caching_Servo(map, "frontGate");
+
+        close();
     }
 
     public void start(){
@@ -49,12 +57,17 @@ public class V4B_Arm {
 
     public void reset(){
         left_servo.setPosition(1.0);
-        right_servo.setPosition(0.02);
+        right_servo.setPosition(0.01);
     }
 
     public void V4BOutPose(){
         left_servo.setPosition(0.047);
         right_servo.setPosition(1.0);
+    }
+
+    public void V4BLowGoalPose(){
+        left_servo.setPosition(0.1);
+        right_servo.setPosition(0.89);
     }
 
     public void V4BPartialOutPose(){
@@ -63,15 +76,11 @@ public class V4B_Arm {
     }
 
     public void release(){
-        release_servo.setPosition(0.55);
+        release_servo.setPosition(0.69);
     }
 
     public void close(){
-        release_servo.setPosition(0.425);
-    }
-
-    public void restRelease(){
-        release_servo.setPosition(0.485);
+        release_servo.setPosition(0.45);
     }
 
     public void closeFront(){
@@ -79,11 +88,17 @@ public class V4B_Arm {
     }
 
     public void openFront(){
-        front.setPosition(0.8);
+        front.setPosition(0.6);
     }
 
     public void operate(GamepadEx gamepad, GamepadEx gamepad2, Telemetry telemetry){
-        if(gamepad.isPress(GamepadEx.Control.left_bumper) || gamepad2.isPress(GamepadEx.Control.left_bumper)){
+        if(gamepad2.isPress(GamepadEx.Control.left_bumper)){
+            lowGoal = false;
+            out = !out;
+        }
+
+        if(gamepad.isPress(GamepadEx.Control.left_bumper)){
+            lowGoal = true;
             out = !out;
         }
 
@@ -105,10 +120,15 @@ public class V4B_Arm {
             if(partialToggle) {
                 V4BPartialOutPose();
             }else{
-                V4BOutPose();
+                if(lowGoal) {
+                    V4BLowGoalPose();
+                }else{
+                    V4BOutPose();
+                }
             }
 
             closeFront();
+
 
             if(!release){
                 close();
@@ -116,8 +136,6 @@ public class V4B_Arm {
                 release();
             }
         }
-
-
 
         telemetry.addData("Partial Toggle: ", partialToggle);
     }

@@ -24,14 +24,16 @@ public class Slides {
     public static double kd = 0.0008;
     public static double gff = 0.25;
 
-    public static double high_goal_position = 270;
+    public static double high_goal_position = 375;
+
+    public static double downPower = 0.245;
 
     public PIDFController controller;
     Telemetry telemetry;
-    STATE mRobotState;
+    public STATE mRobotState;
     DigitalChannel digitalTouch;
 
-    enum STATE{
+    public enum STATE{
         AUTOMATION,
         MANUAL,
         IDLE,
@@ -58,6 +60,7 @@ public class Slides {
         controller.setTargetPosition(target);
         setPower(controller.update(getPosition()));
 
+        telemetry.addData("Target", target);
         telemetry.addData("Error", controller.getLastError());
     }
 
@@ -73,7 +76,7 @@ public class Slides {
         double rSlidePos = rSlides.motor.getCurrentPosition();
         telemetry.addData("Left Slide Position", lSlidePos);
         telemetry.addData("Right Slide Position", rSlidePos);
-        return (rSlidePos - lSlidePos)/2.0;
+        return Math.abs((rSlidePos - lSlidePos)/2.0);
     }
 
     public void setCoast(){
@@ -104,7 +107,6 @@ public class Slides {
 
     public boolean isDown(){
         boolean state = !digitalTouch.getState();
-        telemetry.addData("Touch Sensor State", state);
         return state;
     }
 
@@ -159,9 +161,6 @@ public class Slides {
                 setPower(-0.03);
             }
 
-            telemetry.addData("Left Motor power", lSlides.motor.getPower());
-            telemetry.addData("Right Motor power", rSlides.motor.getPower());
-
             if(gamepad2.isPress(GamepadEx.Control.left_bumper)){
                 mRobotState = STATE.AUTOMATION;
             }
@@ -170,13 +169,15 @@ public class Slides {
                 mRobotState = STATE.MANUAL;
             }
         }else if(mRobotState == STATE.DOWN){
+            setCoast();
             if(getPosition() < 50){
                 mRobotState = STATE.IDLE;
             }else{
-                setPower(-0.4);
+                setPower(-downPower);
             }
         }
 
+        telemetry.addData("Slide Position", getPosition());
         telemetry.addData("Slide State", mRobotState);
     }
 }

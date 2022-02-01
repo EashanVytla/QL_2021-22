@@ -1,22 +1,28 @@
 package org.firstinspires.ftc.teamcode.Components;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.apache.commons.math3.util.IterationListener;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Wrapper.Caching_Motor;
+import org.firstinspires.ftc.teamcode.Wrapper.Caching_Servo;
 import org.firstinspires.ftc.teamcode.Wrapper.GamepadEx;
 
 public class Intake {
     Caching_Motor intakeR;
     Caching_Motor intakeL;
+    Caching_Servo intake_dropper;
     double power = 1.0;
     boolean intakeToggle = false;
 
     public Intake(HardwareMap map){
         intakeR = new Caching_Motor(map, "intakeR");
         intakeL = new Caching_Motor(map, "intakeL");
+        intake_dropper = new Caching_Servo(map, "intake_dropper");
+        intakeR.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        intakeL.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
     public void intake(GamepadEx gamepadEx, GamepadEx gamepad2Ex){
@@ -47,9 +53,33 @@ public class Intake {
 
     }
 
+    public void intake(boolean ifTrue){
+        if(ifTrue){
+            intakeR.setPower(1.0);
+            intakeL.setPower(-1.0);
+        } else {
+            intakeR.setPower(-0.7);
+            intakeL.setPower(0.7);
+        }
+    }
+
+    public void stop(){
+        intakeR.setPower(0.0);
+        intakeL.setPower(0.0);
+    }
+
+    public void clamp(){
+        intake_dropper.setPosition(0.488); //EDIT POSITION
+    }
+
+    public void drop(){
+        intake_dropper.setPosition(0.4);
+    }
+
     public void write(){
         intakeR.write();
         intakeL.write();
+        intake_dropper.write();
     }
 
 }

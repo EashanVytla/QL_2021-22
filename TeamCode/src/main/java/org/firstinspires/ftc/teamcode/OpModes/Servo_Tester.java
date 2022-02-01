@@ -50,7 +50,9 @@ public class Servo_Tester extends LinearOpMode {
                     if(pos > 0){
                         pos -= 0.0005;
                     }
-                } else if (gamepad1.dpad_right){
+                }
+
+                else if (gamepad1.dpad_right){
                     if(pos2 < 1){
                         pos += 0.0005;
                     }
@@ -59,6 +61,7 @@ public class Servo_Tester extends LinearOpMode {
                         pos -= 0.0005;
                     }
                 }
+
                 telemetry.addData("Mode", "In dynamic position mode..");
                 telemetry.addData("    ", "Use the Dpads to change the position dynamically");
                 telemetry.addData("    ", "Press A again to go back into set position mode");
@@ -78,6 +81,6 @@ public class Servo_Tester extends LinearOpMode {
 @Config
 class ServoTester{
     //Set the set/start position of the servo in dashboard
-    public static double pos = 0.3;
+    public static double pos = 0.55;
     public static double pos2 = 0.7;
 }

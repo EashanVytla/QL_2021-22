@@ -27,7 +27,7 @@ public class Robot {
 
     public static boolean red = true;
 
-    private static Pose2d startPos = new Pose2d(0, 0, 0);
+    public static Pose2d startPos = new Pose2d(0, 0, 0);
     List<LynxModule> allHubs;
 
     public Robot(HardwareMap map, Telemetry telemetry){
@@ -54,7 +54,6 @@ public class Robot {
         slides = new Slides(map, telemetry);
 
         localizer = new S4T_Localizer(telemetry);
-        setStartPose(new Pose2d(0, 0, 0));
 
         telemetry.addData("Localizer Position", localizer.getPose());
         telemetry.addLine("Shankar was here :)");
@@ -62,7 +61,11 @@ public class Robot {
     }
 
     public void operate(GamepadEx gamepad1ex, GamepadEx gamepad2ex) {
-        drive.driveCentric(gamepad1ex.gamepad, 1.0, 1.0, getPos().getHeading());
+        if(slides.mRobotState == Slides.STATE.AUTOMATION){
+            drive.driveCentric(gamepad1ex.gamepad, 0.5,1.0, 1.0, getPos().getHeading());
+        }else{
+            drive.driveCentric(gamepad1ex.gamepad, 1.0, 1.0, getPos().getHeading());
+        }
         //drive.drive(gamepad1ex.gamepad, 1.0, 1.0);
 
         intake.intake(gamepad1ex, gamepad2ex);
@@ -90,6 +93,7 @@ public class Robot {
 
     public void setStartPose(Pose2d startPos){
         this.startPos = startPos;
+        localizer.setHeading(startPos.getHeading());
     }
 
     public void updatePos(){
@@ -117,7 +121,7 @@ public class Robot {
     }
 
     public Pose2d getPos(){
-        return new Pose2d(localizer.getPose().getX() + startPos.getX(), localizer.getPose().getY() + startPos.getY(), localizer.getPose().getHeading() + startPos.getHeading());
+        return new Pose2d(localizer.getPose().getX() + startPos.getX(), localizer.getPose().getY() + startPos.getY(), localizer.getPose().getHeading());
     }
 
     public Pose2d getStartPos(){

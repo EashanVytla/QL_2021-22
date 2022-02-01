@@ -17,12 +17,12 @@ import org.firstinspires.ftc.teamcode.Wrapper.GamepadEx;
 
 @Config
 public class S4T_Localizer {
-    public static double TRACK_WIDTH1 = 2706.0796664028780150111768518702;
+    public static double TRACK_WIDTH1 = 2705.8727649768585510746773029778;
 
-    public static double TRACK_WIDTH2 = 2856.0832002669893689733497988488;
+    public static double TRACK_WIDTH2 = 2848.117495365240007418117166492;
 
     private final double EPSILON = 1e-6;
-    private static Pose2d myPose = new Pose2d(0, 0, 0);
+    private static Pose2d myPose = new Pose2d(0, 0,0);
     double prevHeading = 0;
 
     double prevx = 0;
@@ -43,7 +43,7 @@ public class S4T_Localizer {
     public static double k_strafe = 1.0;
     public static double k_vert = 1.0;
     public double TICKS_TO_INCHES_VERT = 303.547368;
-    public double TICKS_TO_INCHES_STRAFE = 303.347368;//335.381388888888888;
+    public double TICKS_TO_INCHES_STRAFE = 303.347368 * (46.892/46.75);//335.381388888888888;
 
     public static double clipping_strafe = 0.05;
     public static double clipping_vert = 0.05;
@@ -135,7 +135,7 @@ public class S4T_Localizer {
 
     public void reset(){
         myPose = new Pose2d(0, 0, 0);
-        heading = 0;
+        heading = Robot.startPos.getHeading();
     }
 
     public double angleWrap(double angle){
