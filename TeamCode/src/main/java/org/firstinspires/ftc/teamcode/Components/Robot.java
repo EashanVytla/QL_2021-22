@@ -1,13 +1,22 @@
 package org.firstinspires.ftc.teamcode.Components;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Odometry.S4T_Encoder;
 import org.firstinspires.ftc.teamcode.Odometry.S4T_Localizer;
+import org.firstinspires.ftc.teamcode.OpModes.LinearTeleOp;
+import org.firstinspires.ftc.teamcode.Vision.DuckDetector;
 import org.firstinspires.ftc.teamcode.Wrapper.GamepadEx;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvPipeline;
+
 import java.util.List;
 
 public class Robot {
@@ -22,6 +31,8 @@ public class Robot {
     private S4T_Encoder encoderRY;
     private S4T_Encoder encoderRX;
     private HardwareMap hardwareMap;
+    OpenCvCamera webcam;
+    OpenCvPipeline detector;
 
     private Telemetry telemetry;
 
@@ -56,7 +67,6 @@ public class Robot {
         localizer = new S4T_Localizer(telemetry);
 
         telemetry.addData("Localizer Position", localizer.getPose());
-        telemetry.addLine("Shankar was here :)");
         telemetry.update();
     }
 
@@ -71,7 +81,7 @@ public class Robot {
         intake.intake(gamepad1ex, gamepad2ex);
 
         arm.operate(gamepad1ex, gamepad2ex, telemetry);
-        carousel.operate(gamepad1ex.gamepad);
+        carousel.operate(gamepad2ex.gamepad);
 
         if(gamepad1ex.isPress(GamepadEx.Control.start)){
             localizer.reset();
@@ -81,7 +91,9 @@ public class Robot {
 
         arm.write();
         intake.write();
-        drive.write();
+        if(LinearTeleOp.robotState == LinearTeleOp.mRobotState.DRIVE){
+            drive.write();
+        }
         carousel.write();
         slides.write();
 
@@ -94,6 +106,37 @@ public class Robot {
     public void setStartPose(Pose2d startPos){
         this.startPos = startPos;
         localizer.setHeading(startPos.getHeading());
+    }
+
+
+    public void initializeWebcam(){
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+
+        detector = new DuckDetector(telemetry);
+        webcam.setPipeline(detector);
+
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        {
+            @Override
+            public void onOpened()
+            {
+                FtcDashboard.getInstance().startCameraStream(webcam, 30);
+                webcam.startStreaming(640, 360, OpenCvCameraRotation.UPRIGHT);
+            }
+
+            @Override
+            public void onError(int errorCode) {
+
+            }
+        });
+    }
+    public int getDuckCase(){
+       return ((DuckDetector)detector).getDuckPosition();
+    }
+
+    public void stopWebcam(){
+        webcam.stopStreaming();
     }
 
     public void updatePos(){

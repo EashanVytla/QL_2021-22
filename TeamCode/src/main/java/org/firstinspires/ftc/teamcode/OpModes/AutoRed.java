@@ -19,6 +19,7 @@ import java.util.ArrayList;
 public class AutoRed extends LinearOpMode {
 
     private enum State{
+        DROP_INTAKE,
         PRE_LOAD_FREIGHT,
         CAROUSEL,
         RUN_CAROUSEL,
@@ -27,7 +28,7 @@ public class AutoRed extends LinearOpMode {
         CYCLE2,
         PARK
     }
-    State mRobotState = State.PRE_LOAD_FREIGHT;
+    State mRobotState = State.DROP_INTAKE;
 
     boolean gtp = false;
     int cycle = 0;
@@ -50,16 +51,28 @@ public class AutoRed extends LinearOpMode {
         robot.arm.closeFront();
         robot.arm.front.write();
         telemetry.update();
+        robot.intake.clamp();
+        robot.intake.write();
 
         robot.localizer.reset();
         robot.setStartPose(new Pose2d(0, 0,Math.toRadians(90)));
 
         waitForStart();
 
+        time.startTime();
+
         while(opModeIsActive()){
             ArrayList<CurvePoint> points = new ArrayList<>();
 
             switch(mRobotState) {
+                case DROP_INTAKE:
+                    if(time.time() >= 0.2){
+                        robot.localizer.reset();
+                        newState(State.PRE_LOAD_FREIGHT);
+                    }
+
+                    robot.intake.drop();
+                    break;
                 case PRE_LOAD_FREIGHT:
                     points.add(new CurvePoint(new Pose2d(0, 0, Math.toRadians(270)), 1d, 1d, 25));
                     points.add(new CurvePoint(PRE_LOADED_FREIGHT_POS, 1d, 1d, 25));

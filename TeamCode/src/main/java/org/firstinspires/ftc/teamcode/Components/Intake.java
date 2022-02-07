@@ -11,43 +11,37 @@ import org.firstinspires.ftc.teamcode.Wrapper.Caching_Servo;
 import org.firstinspires.ftc.teamcode.Wrapper.GamepadEx;
 
 public class Intake {
-    Caching_Motor intakeR;
-    Caching_Motor intakeL;
+    Caching_Motor intake;
     Caching_Servo intake_dropper;
     double power = 1.0;
     boolean intakeToggle = false;
 
     public Intake(HardwareMap map){
-        intakeR = new Caching_Motor(map, "intakeR");
-        intakeL = new Caching_Motor(map, "intakeL");
+        intake = new Caching_Motor(map, "intakeL");
         intake_dropper = new Caching_Servo(map, "intake_dropper");
-        intakeR.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        intakeL.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        intake.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
     public void intake(GamepadEx gamepadEx, GamepadEx gamepad2Ex){
         /*intakeR.setPower(gamepadEx.gamepad.right_trigger - gamepadEx.gamepad.left_trigger);
         intakeL.setPower(-gamepadEx.gamepad.right_trigger + gamepadEx.gamepad.left_trigger);*/
 
+        clamp();
         if(gamepadEx.isPress(GamepadEx.Control.right_trigger)){
             intakeToggle = !intakeToggle;
         }
 
         if(Math.abs(gamepad2Ex.gamepad.left_trigger + gamepad2Ex.gamepad.right_trigger) > 0.1) {
-            intakeR.setPower(-gamepad2Ex.gamepad.left_trigger - gamepad2Ex.gamepad.right_trigger);
-            intakeL.setPower(gamepad2Ex.gamepad.left_trigger + gamepad2Ex.gamepad.right_trigger);
+            intake.setPower(gamepad2Ex.gamepad.left_trigger + gamepad2Ex.gamepad.right_trigger);
         }else{
             if(Math.abs(gamepadEx.gamepad.left_trigger) < 0.1) {
                 if (intakeToggle) {
-                    intakeR.setPower(1.0);
-                    intakeL.setPower(-1.0);
+                    intake.setPower(-1.0);
                 }else{
-                    intakeL.setPower(0.0);
-                    intakeR.setPower(0.0);
+                    intake.setPower(0.0);
                 }
             }else{
-                intakeR.setPower(-0.5);
-                intakeL.setPower(0.5);
+                intake.setPower(0.5);
             }
         }
 
@@ -55,30 +49,26 @@ public class Intake {
 
     public void intake(boolean ifTrue){
         if(ifTrue){
-            intakeR.setPower(1.0);
-            intakeL.setPower(-1.0);
+            intake.setPower(-1.0);
         } else {
-            intakeR.setPower(-0.7);
-            intakeL.setPower(0.7);
+            intake.setPower(0.5);
         }
     }
 
     public void stop(){
-        intakeR.setPower(0.0);
-        intakeL.setPower(0.0);
+        intake.setPower(0.0);
     }
 
     public void clamp(){
-        intake_dropper.setPosition(0.488); //EDIT POSITION
+        intake_dropper.setPosition(0.08);
     }
 
     public void drop(){
-        intake_dropper.setPosition(0.4);
+        intake_dropper.setPosition(0.05);
     }
 
     public void write(){
-        intakeR.write();
-        intakeL.write();
+        intake.write();
         intake_dropper.write();
     }
 

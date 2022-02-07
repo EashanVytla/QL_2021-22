@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Wrapper.GamepadEx;
 public class V4B_Arm {
     Caching_Servo left_servo;
     Caching_Servo right_servo;
-    Caching_Servo release_servo;
+    public Caching_Servo release_servo;
 
     private boolean out = false;
     private boolean release = false;
@@ -20,7 +20,7 @@ public class V4B_Arm {
 
     public Caching_Servo front;
 
-    boolean partialToggle = false;
+    public static boolean partialToggle;
     boolean lowGoal = false;
 
     /*
@@ -47,6 +47,7 @@ public class V4B_Arm {
         right_servo = new Caching_Servo(map, "right_arm");
         release_servo = new Caching_Servo(map, "release_arm");
         front = new Caching_Servo(map, "frontGate");
+        partialToggle = false;
 
         close();
     }
@@ -56,8 +57,8 @@ public class V4B_Arm {
     }
 
     public void reset(){
-        left_servo.setPosition(1.0);
-        right_servo.setPosition(0.01);
+        left_servo.setPosition(0.969);
+        right_servo.setPosition(0.014);
     }
 
     public void V4BOutPose(){
@@ -79,16 +80,21 @@ public class V4B_Arm {
         release_servo.setPosition(0.69);
     }
 
+    public void halfwayRelease(){
+        release_servo.setPosition(0.52);
+
+    }
+
     public void close(){
         release_servo.setPosition(0.45);
     }
 
     public void closeFront(){
-        front.setPosition(1.0);
+        front.setPosition(0.7);
     }
 
     public void openFront(){
-        front.setPosition(0.6);
+        front.setPosition(0.1);
     }
 
     public void operate(GamepadEx gamepad, GamepadEx gamepad2, Telemetry telemetry){
@@ -102,7 +108,7 @@ public class V4B_Arm {
             out = !out;
         }
 
-        if(gamepad.isPress(GamepadEx.Control.a)){
+        if(gamepad.isPress(GamepadEx.Control.a) || gamepad2.isPress(GamepadEx.Control.a)){
             partialToggle = !partialToggle;
         }
 
@@ -117,24 +123,27 @@ public class V4B_Arm {
             reset();
             time.reset();
         } else{
-            if(partialToggle) {
-                V4BPartialOutPose();
-            }else{
-                if(lowGoal) {
-                    V4BLowGoalPose();
-                }else{
-                    V4BOutPose();
+            if(time.time() > 0.1) {
+                if(time.time() > 0.2) {
+                    if (!release) {
+                        halfwayRelease();
+                    } else {
+                        release();
+                    }
+                }
+
+                if (partialToggle) {
+                    V4BPartialOutPose();
+                } else {
+                    if (lowGoal) {
+                        V4BLowGoalPose();
+                    } else {
+                        V4BOutPose();
+                    }
                 }
             }
 
             closeFront();
-
-
-            if(!release){
-                close();
-            } else{
-                release();
-            }
         }
 
         telemetry.addData("Partial Toggle: ", partialToggle);

@@ -145,7 +145,7 @@ public class Slides {
             if(gamepad2.isPress(GamepadEx.Control.left_bumper)){
                 mRobotState = STATE.DOWN;
             }else{
-                setPosition(high_goal_position);
+                setPosition(V4B_Arm.partialToggle ? 157 : high_goal_position);
             }
 
             if(gamepad2.gamepad.right_stick_y >= 0.1){

@@ -1,4 +1,4 @@
-/*package org.firstinspires.ftc.teamcode.Vision;
+package org.firstinspires.ftc.teamcode.Vision;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.opencv.core.Core;
@@ -24,7 +24,8 @@ public class DuckDetector extends OpenCvPipeline {
     public Scalar lowerHSV = new Scalar(46.8, 66.6, 80.8);
     public Scalar upperHSV = new Scalar(102.0, 255, 255);
 
-    public double threshold = 100;
+    public double threshold = 6000;
+    public double horizon = 60;
 
     public double blurConstant = 1;
 
@@ -71,18 +72,20 @@ public class DuckDetector extends OpenCvPipeline {
         for(MatOfPoint contour : contoursList){
             Rect rect = Imgproc.boundingRect(contour);
 
-            if(rect.y >= threshold){
+            if(rect.area() >= threshold && rect.y >= horizon){
                 Imgproc.rectangle(contoursOnFrameMat, rect.tl(), rect.br(), new Scalar(255, 0, 0), 2);
                 Imgproc.putText(contoursOnFrameMat, String.valueOf(rect.x), rect.tl(), 0, 0.5, new Scalar(255, 255, 255));
 
-                if(rect.x >= 100){
-                    duckPosition = 2;
-                }else{
+                if(rect.x < 200){
                     duckPosition = 0;
+                }else if(rect.x < 350){
+                    duckPosition = 1;
+                }else{
+                    duckPosition = 2;
                 }
             }
         }
 
-        return input;
+        return contoursOnFrameMat;
     }
-}*/
+}

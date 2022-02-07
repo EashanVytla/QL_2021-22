@@ -15,26 +15,23 @@ import org.firstinspires.ftc.teamcode.Wrapper.GamepadEx;
 
 import java.util.ArrayList;
 
+import static org.firstinspires.ftc.teamcode.OpModes.AutoRed.DEPOT_POS;
+import static org.firstinspires.ftc.teamcode.OpModes.AutoRed.FREIGHT_POS;
+
 @TeleOp(name = "TeleOp")
 public class LinearTeleOp extends LinearOpMode {
     Robot robot;
     GamepadEx gamepadEx1;
     GamepadEx gamepadEx2;
-    int toggle = 0;
+    double yOffset = 0.0;
 
-    enum mRobotState{
-        AUTOMATION,
+    public enum mRobotState {
+        AUTOMATION_IN,
         DRIVE,
+        AUTOMATION_OUT
     }
 
-    enum mAutomationState{
-        CYCLE,
-        CYCLE2,
-    }
-
-    mRobotState robotState = mRobotState.DRIVE;
-    mAutomationState automationState = mAutomationState.CYCLE;
-
+    public static mRobotState robotState = mRobotState.DRIVE;
 
     @Override
     public void runOpMode() {
@@ -42,117 +39,84 @@ public class LinearTeleOp extends LinearOpMode {
         gamepadEx1 = new GamepadEx(gamepad1);
         gamepadEx2 = new GamepadEx(gamepad2);
         ElapsedTime time = new ElapsedTime();
+        ArrayList<CurvePoint> points = new ArrayList<>();
+        robotState = mRobotState.DRIVE;
 
         waitForStart();
 
         robot.arm.start();
+        robot.updatePos();
 
         while (opModeIsActive()) {
+            if (robotState != mRobotState.DRIVE) {
+                points = new ArrayList<>();
+            }
+
+            robot.operate(gamepadEx1, gamepadEx2);
+
+            if (gamepadEx2.isPress(GamepadEx.Control.dpad_up)) {
+                yOffset += 0.5;
+            }
+
+            if (gamepadEx2.isPress(GamepadEx.Control.dpad_down)) {
+                yOffset -= 0.5;
+            }
+
+            telemetry.addData("Y Offset", yOffset);
+
+            telemetry.update();
+/*
             switch (robotState){
                 case DRIVE:
-                    robot.operate(gamepadEx1, gamepadEx2);
-                    telemetry.update();
-
-                    if(gamepadEx1.isPress(GamepadEx.Control.b)){
+                    if(gamepadEx1.isPress(GamepadEx.Control.left_stick_button)){
                         time.reset();
-                        robotState = mRobotState.AUTOMATION;
-                        automationState = mAutomationState.CYCLE;
+                        robotState = mRobotState.AUTOMATION_IN;
+                    }
+
+                    if(gamepadEx1.isPress(GamepadEx.Control.right_stick_button)){
+                        time.reset();
+                        robotState = mRobotState.AUTOMATION_OUT;
                     }
                     break;
-                case AUTOMATION:
-                    ArrayList<CurvePoint> points = new ArrayList<>();
-
-                    if(gamepadEx2.isPress(GamepadEx.Control.dpad_up)){
-                        toggle++;
-                    }else{
-                        toggle--;
+                case AUTOMATION_IN:
+                    if((Math.abs(gamepadEx1.gamepad.left_stick_x) > 0.3 || Math.abs(gamepadEx1.gamepad.left_stick_y) > 0.3) && time.time() > 0.2){
+                        robotState = mRobotState.DRIVE;
                     }
 
-                    switch (automationState) {
-                        case CYCLE:
-                            robot.slides.setBrake();
-                            points.add(new CurvePoint(AutoRed.DEPOT_POS, 1d, 1d, 15));
-                            points.add(new CurvePoint(new Pose2d(5, 0, Math.toRadians(270)), 1d, 1d, 15)); //2nd POINT FOR FREIGHT_CYCLE
-                        /*switch(cycle){
-                            case 0:
-                            case 3:
-                                points.add(new CurvePoint(FREIGHT_POS, 1d, 1d, 15));
-                                break;
-                            case 1:
-                                points.add(new CurvePoint(FREIGHT_POS_2, 1d, 1d, 15));
-                                break;
-                            case 2:
-                                points.add(new CurvePoint(FREIGHT_POS_3, 1d, 1d, 15));
-                                break;
-                        }*/
-                            points.add(new CurvePoint(AutoRed.FREIGHT_POS, 0.5d, 0.5d, 15));
-
-                            if (robot.getPos().getX() > -5) {
-                                robot.arm.closeFront();
-                                robot.slides.setPosition(157);
-                                robot.arm.V4BPartialOutPose();
-                                robot.intake.stop();
-                            } else if (robot.getPos().getX() <= 0) {
-                                if (time.time() > 0.5) {
-                                    robot.intake.intake(false);
-                                }
-                            }
-
-                            if (robot.getPos().vec().distTo(points.get(points.size() - 1).toVec()) < 2 && Math.abs(robot.getPos().getHeading() - points.get(points.size() - 1).heading) < 2.0) {
-                                if (time.time() > 0.2) {
-                                    newState(mAutomationState.CYCLE2);
-                                }
-                                robot.arm.release();
-                            } else {
-                                if (robot.getPos().getX() > 0) {
-                                    time.reset();
-                                }
-                            }
-                            break;
-
-                        case CYCLE2:
-                            points.add(new CurvePoint(AutoRed.FREIGHT_POS, 1d, 1d, 10));
-                            points.add(new CurvePoint(new Pose2d(5, -1, Math.toRadians(270)), 1d, 1d, 10)); //2nd POINT FOR FREIGHT_CYCLE
-                            points.add(new CurvePoint(new Pose2d(AutoRed.DEPOT_POS.getX() - toggle * 4, AutoRed.DEPOT_POS.getY(), AutoRed.DEPOT_POS.getHeading()), 1d, 1d, 10));
-
-
-                            if (robot.getPos().getX() < 0) {
-                                robot.intake.intake(true);
-                            }
-
-                            robot.arm.close();
-                            robot.arm.reset();
-                            robot.arm.openFront();
-
-                            robot.slides.setCoast();
-                            if (robot.slides.getPosition() < 50) {
-                                if (!robot.slides.isDown()) {
-                                    telemetry.addLine("not down");
-                                    robot.slides.setPower(-0.2);
-                                } else {
-                                    telemetry.addLine("down");
-                                    robot.slides.setPower(-0.03);
-                                }
-                            } else {
-                                robot.slides.setPower(-robot.slides.downPower);
-                            }
-
-                            if (robot.getPos().getX() - 1 < points.get(points.size() - 1).x) {
-                                newState(mAutomationState.CYCLE);
-                            } else {
-                                time.reset();
-                            }
-
-                            break;
+                    if(gamepadEx1.isPress(GamepadEx.Control.right_stick_button)){
+                        time.reset();
+                        robotState = mRobotState.AUTOMATION_OUT;
                     }
+
+                    points.add(new CurvePoint(FREIGHT_POS, 1d, 1d, 10));
+                    points.add(new CurvePoint(new Pose2d(7, -1 + yOffset, Math.toRadians(270)), 1d, 1d, 10));
+                    points.add(new CurvePoint(new Pose2d(DEPOT_POS.getX(), DEPOT_POS.getY() + yOffset, DEPOT_POS.getHeading()), 1d, 1d, 15));
+
+
                     RobotMovement.followCurve(points, robot, telemetry);
 
                     break;
-            }
-        }
-    }
+                case AUTOMATION_OUT:
+                    if((Math.abs(gamepadEx1.gamepad.left_stick_x) > 0.3 || Math.abs(gamepadEx1.gamepad.left_stick_y) > 0.3) && time.time() > 0.2){
+                        robotState = mRobotState.DRIVE;
+                    }
 
-    public void newState(mAutomationState state){
-        automationState = state;
+                    if(gamepadEx1.isPress(GamepadEx.Control.left_stick_button)){
+                        time.reset();
+                        robotState = mRobotState.AUTOMATION_IN;
+                    }
+
+                    points.add(new CurvePoint(new Pose2d(DEPOT_POS.getX(), DEPOT_POS.getY() + yOffset, DEPOT_POS.getHeading()), 1d, 1d, 10));
+                    points.add(new CurvePoint(new Pose2d(5, 0 + yOffset, Math.toRadians(270)), 1d, 1d, 10)); //2nd POINT FOR FREIGHT_CYCLE
+                    points.add(new CurvePoint(FREIGHT_POS, 1.0, 1.0, 15));
+                    RobotMovement.followCurve(points, robot, telemetry);
+
+                    break;
+
+
+
+ */
+
+        }
     }
 }
