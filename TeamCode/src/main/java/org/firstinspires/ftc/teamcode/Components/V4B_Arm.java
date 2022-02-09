@@ -57,23 +57,28 @@ public class V4B_Arm {
     }
 
     public void reset(){
-        left_servo.setPosition(0.969);
-        right_servo.setPosition(0.014);
+        left_servo.setPosition(0.949);
+        right_servo.setPosition(0.05);
     }
 
     public void V4BOutPose(){
-        left_servo.setPosition(0.047);
-        right_servo.setPosition(1.0);
+        left_servo.setPosition(0.002);
+        right_servo.setPosition(0.98);
     }
 
     public void V4BLowGoalPose(){
-        left_servo.setPosition(0.1);
-        right_servo.setPosition(0.89);
+        left_servo.setPosition(0.002);
+        right_servo.setPosition(0.98);
     }
 
     public void V4BPartialOutPose(){
-        left_servo.setPosition(0.3);
-        right_servo.setPosition(0.725);
+        left_servo.setPosition(0.22);
+        right_servo.setPosition(0.775);
+    }
+
+    public void V4BAutoLowGoalPos(){
+        left_servo.setPosition(0.11);
+        right_servo.setPosition(0.85);
     }
 
     public void release(){
