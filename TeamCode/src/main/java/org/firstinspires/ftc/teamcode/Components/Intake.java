@@ -1,11 +1,15 @@
 package org.firstinspires.ftc.teamcode.Components;
 
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.apache.commons.math3.util.IterationListener;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Wrapper.Caching_Motor;
 import org.firstinspires.ftc.teamcode.Wrapper.Caching_Servo;
 import org.firstinspires.ftc.teamcode.Wrapper.GamepadEx;
@@ -15,14 +19,17 @@ public class Intake {
     Caching_Servo intake_dropper;
     double power = 1.0;
     boolean intakeToggle = false;
+    private DistanceSensor sensorRange;
 
     public Intake(HardwareMap map){
         intake = new Caching_Motor(map, "intakeL");
         intake_dropper = new Caching_Servo(map, "intake_dropper");
+        sensorRange = map.get(DistanceSensor.class, "sensor_range");
+
         intake.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
-    public void intake(GamepadEx gamepadEx, GamepadEx gamepad2Ex){
+    public void intake(GamepadEx gamepadEx, GamepadEx gamepad2Ex, Telemetry telemetry){
         /*intakeR.setPower(gamepadEx.gamepad.right_trigger - gamepadEx.gamepad.left_trigger);
         intakeL.setPower(-gamepadEx.gamepad.right_trigger + gamepadEx.gamepad.left_trigger);*/
 
@@ -30,6 +37,8 @@ public class Intake {
         if(gamepadEx.isPress(GamepadEx.Control.right_trigger)){
             intakeToggle = !intakeToggle;
         }
+
+        telemetry.addData("Sensor Data", sensorRange.getDistance(DistanceUnit.INCH));
 
         if(Math.abs(gamepad2Ex.gamepad.left_trigger + gamepad2Ex.gamepad.right_trigger) > 0.1) {
             intake.setPower(gamepad2Ex.gamepad.left_trigger + gamepad2Ex.gamepad.right_trigger);
@@ -71,5 +80,4 @@ public class Intake {
         intake.write();
         intake_dropper.write();
     }
-
 }

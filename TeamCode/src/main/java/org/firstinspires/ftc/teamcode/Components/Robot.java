@@ -71,14 +71,16 @@ public class Robot {
     }
 
     public void operate(GamepadEx gamepad1ex, GamepadEx gamepad2ex) {
-        if(slides.mRobotState == Slides.STATE.AUTOMATION){
+        /*if(slides.mRobotState == Slides.STATE.AUTOMATION){
             drive.driveCentric(gamepad1ex.gamepad, 0.5,1.0, 1.0, getPos().getHeading());
         }else{
             drive.driveCentric(gamepad1ex.gamepad, 1.0, 1.0, getPos().getHeading());
-        }
+        }*/
+        drive.driveCentric(gamepad1ex.gamepad, 1.0, 1.0, getPos().getHeading());
+
         //drive.drive(gamepad1ex.gamepad, 1.0, 1.0);
 
-        intake.intake(gamepad1ex, gamepad2ex);
+        intake.intake(gamepad1ex, gamepad2ex, telemetry);
 
         arm.operate(gamepad1ex, gamepad2ex, telemetry);
         carousel.operate(gamepad2ex.gamepad);

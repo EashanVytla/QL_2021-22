@@ -19,14 +19,14 @@ public class Slides {
     Caching_Motor rSlides;
     Caching_Motor lSlides;
 
-    public static double kp = 0.02;
+    public static double kp = 0.01;//0.02;
     public static double ki = 0.0;
-    public static double kd = 0.0008;
-    public static double gff = 0.25;
+    public static double kd = 0.0;//0.0008;
+    public static double gff = 0.0;//0.25;
 
-    public static double high_goal_position = 326;
+    public static double high_goal_position = 1700;//326;
 
-    public static double downPower = 0.245;
+    public static double downPower = 1.0;//0.245;
 
     public PIDFController controller;
     Telemetry telemetry;
@@ -90,7 +90,7 @@ public class Slides {
     }
 
     public void setPower(double power){
-        if(getPosition() > 50 || mRobotState == STATE.MANUAL) {
+        /*if(getPosition() > 50 || mRobotState == STATE.MANUAL) {
             power += gff;
             telemetry.addLine("Gff on");
         }else{
@@ -102,7 +102,15 @@ public class Slides {
         }else {
             rSlides.setPower(power);
             lSlides.setPower(-power);
+        }*/
+        if(getPosition() > 50 || mRobotState == STATE.MANUAL) {
+            power += gff;
+            telemetry.addLine("Gff on");
+        }else{
+            telemetry.addLine("Gff Off");
         }
+        rSlides.setPower(power);
+        lSlides.setPower(-power);
     }
 
     public boolean isDown(){
@@ -137,7 +145,7 @@ public class Slides {
                 mRobotState = STATE.DOWN;
             }
 
-            if(gamepad2.isPress(GamepadEx.Control.left_bumper)){
+            if(gamepad2.isPress(GamepadEx.Control.left_bumper) || gamepad1.isPress(GamepadEx.Control.left_bumper)){
                 mRobotState = STATE.AUTOMATION;
             }
         }else if(mRobotState == STATE.AUTOMATION){
@@ -145,7 +153,7 @@ public class Slides {
             if(gamepad2.isPress(GamepadEx.Control.left_bumper)){
                 mRobotState = STATE.DOWN;
             }else{
-                setPosition(V4B_Arm.partialToggle ? 157 : high_goal_position);
+                setPosition(V4B_Arm.partialToggle ? 818.71 : high_goal_position);
             }
 
             if(gamepad2.gamepad.right_stick_y >= 0.1){
