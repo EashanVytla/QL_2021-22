@@ -21,10 +21,9 @@ public class V4B_Arm {
     public Caching_Servo front;
 
     public static boolean partialToggle;
-    boolean lowGoal = false;
+    public static int goal = 2;
 
     /*
-
          100 degree angle:
             Right:0.6
             Left: 0.385;
@@ -48,6 +47,7 @@ public class V4B_Arm {
         release_servo = new Caching_Servo(map, "release_arm");
         front = new Caching_Servo(map, "frontGate");
         partialToggle = false;
+        goal = 2;
 
         close();
     }
@@ -57,45 +57,39 @@ public class V4B_Arm {
     }
 
     public void reset(){
-        left_servo.setPosition(0.949);
-        right_servo.setPosition(0.05);
+        left_servo.setPosition(0.97);
+        right_servo.setPosition(0.03);
     }
 
     public void V4BOutPose(){
-        left_servo.setPosition(0.002);
-        right_servo.setPosition(0.98);
-    }
-
-    public void V4BLowGoalPose(){
-        left_servo.setPosition(0.002);
-        right_servo.setPosition(0.98);
+        left_servo.setPosition(0.035);
+        right_servo.setPosition(1.0);
     }
 
     public void V4BPartialOutPose(){
-        left_servo.setPosition(0.22);
-        right_servo.setPosition(0.775);
+        left_servo.setPosition(0.185);
+        right_servo.setPosition(0.819);
     }
 
     public void V4BAutoLowGoalPos(){
-        left_servo.setPosition(0.11);
-        right_servo.setPosition(0.85);
+        V4BOutPose();
     }
 
     public void release(){
-        release_servo.setPosition(0.69);
+        release_servo.setPosition(/*0.69*/0.76);
     }
 
     public void halfwayRelease(){
-        release_servo.setPosition(0.52);
+        release_servo.setPosition(0.68);
 
     }
 
     public void close(){
-        release_servo.setPosition(0.45);
+        release_servo.setPosition(/*0.45*/0.54);
     }
 
     public void closeFront(){
-        front.setPosition(0.7);
+        front.setPosition(0.64);
     }
 
     public void openFront(){
@@ -103,48 +97,84 @@ public class V4B_Arm {
     }
 
     public void operate(GamepadEx gamepad, GamepadEx gamepad2, Telemetry telemetry){
-        if(gamepad2.isPress(GamepadEx.Control.left_bumper)){
-            lowGoal = false;
+        if(gamepad.isPress(GamepadEx.Control.left_bumper) || gamepad2.isPress(GamepadEx.Control.left_bumper)){
+            if(out){
+                release();
+            }
+            time.reset();
             out = !out;
         }
 
-        if(gamepad.isPress(GamepadEx.Control.left_bumper)){
-            lowGoal = true;
-            out = !out;
+        if(gamepad2.isPress(GamepadEx.Control.dpad_up)){
+            if(goal != 2) {
+                goal++;
+            }
+            if(goal == 0){
+                gamepad2.gamepad.rumble(0.0, 1.0, 400);
+            }else if(goal == 2){
+                gamepad2.gamepad.rumble(1.0, 0.0, 400);
+            }
+        }
+
+        if(gamepad2.isPress(GamepadEx.Control.dpad_down)){
+            if(goal != 0) {
+                goal--;
+            }
+            if(goal == 0){
+                gamepad2.gamepad.rumble(0.0, 1.0, 400);
+            }else if(goal == 2){
+                gamepad2.gamepad.rumble(1.0, 0.0, 400);
+            }
+        }
+
+        if(goal == 2){
+            telemetry.addLine("MODE: High Goal");
+        } else if (goal == 1) {
+            telemetry.addLine("MODE: Mid Goal");
+        }else{
+            telemetry.addLine("MODE: Low Goal");
         }
 
         if(gamepad.isPress(GamepadEx.Control.a) || gamepad2.isPress(GamepadEx.Control.a)){
             partialToggle = !partialToggle;
         }
 
-        if(gamepad.isPress(GamepadEx.Control.right_bumper)){
-            release = !release;
-        }
-
         if(!out){
             release = false;
-            close();
-            openFront();
-            reset();
-            time.reset();
+            if(goal == 2) {
+                openFront();
+                if (time.time() > 0.7) {
+                    close();
+                }
+                if (time.time() > 0.4) {
+                    reset();
+                } else {
+                    release();
+                }
+            }else{
+                if(time.time() > 1.5) {
+                    close();
+                    openFront();
+                    reset();
+                }
+            }
         } else{
             if(time.time() > 0.1) {
-                if(time.time() > 0.2) {
+                /*if(time.time() > 0.2) {
                     if (!release) {
                         halfwayRelease();
                     } else {
                         release();
                     }
+                }*/
+                if(release) {
+                    release();
                 }
 
-                if (partialToggle) {
+                if (partialToggle || goal == 1) {
                     V4BPartialOutPose();
                 } else {
-                    if (lowGoal) {
-                        V4BLowGoalPose();
-                    } else {
-                        V4BOutPose();
-                    }
+                    V4BOutPose();
                 }
             }
 

@@ -36,16 +36,14 @@ public class Robot {
 
     private Telemetry telemetry;
 
-    public static boolean red = true;
-
     public static Pose2d startPos = new Pose2d(0, 0, 0);
     List<LynxModule> allHubs;
 
     public Robot(HardwareMap map, Telemetry telemetry){
         this.hardwareMap = map;
         this.telemetry = telemetry;
+        startPos = new Pose2d(0, 0, 0);
 
-        red = true;
 
         allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule module : allHubs) {
@@ -68,6 +66,11 @@ public class Robot {
 
         telemetry.addData("Localizer Position", localizer.getPose());
         telemetry.update();
+    }
+
+    public void setBlue(){
+        drive.setBlue();
+        localizer.blue = true;
     }
 
     public void operate(GamepadEx gamepad1ex, GamepadEx gamepad2ex) {

@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.apache.commons.math3.util.IterationListener;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Wrapper.Caching_Motor;
@@ -20,6 +20,8 @@ public class Intake {
     double power = 1.0;
     boolean intakeToggle = false;
     private DistanceSensor sensorRange;
+    private boolean outtake = false;
+    ElapsedTime time;
 
     public Intake(HardwareMap map){
         intake = new Caching_Motor(map, "intakeL");
@@ -27,18 +29,29 @@ public class Intake {
         sensorRange = map.get(DistanceSensor.class, "sensor_range");
 
         intake.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        time = new ElapsedTime();
+        time.startTime();
+    }
+
+    public boolean isBlockIn(){
+        return !(sensorRange.getDistance(DistanceUnit.INCH) > 1.6);
     }
 
     public void intake(GamepadEx gamepadEx, GamepadEx gamepad2Ex, Telemetry telemetry){
         /*intakeR.setPower(gamepadEx.gamepad.right_trigger - gamepadEx.gamepad.left_trigger);
         intakeL.setPower(-gamepadEx.gamepad.right_trigger + gamepadEx.gamepad.left_trigger);*/
 
+        //gamepadEx.gamepad.rumble(400);
+
         clamp();
         if(gamepadEx.isPress(GamepadEx.Control.right_trigger)){
             intakeToggle = !intakeToggle;
         }
 
-        telemetry.addData("Sensor Data", sensorRange.getDistance(DistanceUnit.INCH));
+        if(gamepadEx.isPress(GamepadEx.Control.left_bumper)){
+            outtake = true;
+            intakeToggle = false;
+        }
 
         if(Math.abs(gamepad2Ex.gamepad.left_trigger + gamepad2Ex.gamepad.right_trigger) > 0.1) {
             intake.setPower(gamepad2Ex.gamepad.left_trigger + gamepad2Ex.gamepad.right_trigger);
@@ -46,8 +59,20 @@ public class Intake {
             if(Math.abs(gamepadEx.gamepad.left_trigger) < 0.1) {
                 if (intakeToggle) {
                     intake.setPower(-1.0);
+                    if(isBlockIn()){
+                        gamepadEx.gamepad.rumble(400);
+                    }
                 }else{
-                    intake.setPower(0.0);
+                    if(outtake){
+                        if(time.time() > 1.0){
+                            outtake = false;
+                        }
+
+                        intake(false);
+                    }else{
+                        intake.setPower(0.0);
+                        time.reset();
+                    }
                 }
             }else{
                 intake.setPower(0.5);
@@ -69,11 +94,11 @@ public class Intake {
     }
 
     public void clamp(){
-        intake_dropper.setPosition(0.08);
+        intake_dropper.setPosition(0.1);
     }
 
     public void drop(){
-        intake_dropper.setPosition(0.05);
+        intake_dropper.setPosition(0.04);
     }
 
     public void write(){

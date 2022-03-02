@@ -32,9 +32,9 @@ public class Mecanum_Drive{
     PIDFController PID_Y;
     PIDFController PID_Z;
 
-    public static double kp = 0.09;
+    public static double kp = 0.12;
     public static double ki = 0;
-    public static double kd = 0.0065;
+    public static double kd = 0.011;
 
     public static double kpr = 2.9;
     public static double kir = 0;
@@ -43,6 +43,7 @@ public class Mecanum_Drive{
     TelemetryPacket packet = new TelemetryPacket();
     FtcDashboard dashboard = FtcDashboard.getInstance();
     public static boolean isTurning = false;
+    private boolean blue;
 
     int counter;
 
@@ -66,11 +67,14 @@ public class Mecanum_Drive{
         PID_X = new PIDFController(new PIDCoefficients(kp, ki, kd));
         PID_Y = new PIDFController(new PIDCoefficients(kp, ki, kd));
         PID_Z = new PIDFController(new PIDCoefficients(kpr, kir, kdr));
-
         counter = 0;
 
         motors[1].motor.setDirection(DcMotorSimple.Direction.REVERSE);
         motors[3].motor.setDirection(DcMotorSimple.Direction.REVERSE );
+    }
+
+    public void setBlue(){
+        blue = true;
     }
 
     public void setCoast(){
@@ -138,7 +142,12 @@ public class Mecanum_Drive{
     }
 
     public void setPowerCentic(double x, double y, double rot, double heading){
-        setPower(new Vector2(x, y).rotated(((2 * Math.PI) - heading) + Math.PI), rot);
+        if(blue) {
+            heading -= Math.PI;
+            setPower(new Vector2(x, y).rotated((heading) + Math.PI), rot);
+        }else{
+            setPower(new Vector2(x, y).rotated(((2 * Math.PI) - heading) + Math.PI), rot);
+        }
     }
 
     public void drive(Gamepad gamepad, double scale, double turnScale, double maxMove, double maxTurn){
@@ -150,7 +159,11 @@ public class Mecanum_Drive{
     }
 
     public void driveCentric(Gamepad gamepad, double maxMove, double maxTurn, double heading){
-        setPowerCentic(Range.clip(gamepad.left_stick_x, -maxMove, maxMove), Range.clip(gamepad.left_stick_y, -maxMove, maxMove), Range.clip(-gamepad.right_stick_x, -maxTurn, maxTurn), heading);
+        if(blue) {
+            setPowerCentic(Range.clip(-gamepad.left_stick_x, -maxMove, maxMove), Range.clip(-gamepad.left_stick_y, -maxMove, maxMove), Range.clip(-gamepad.right_stick_x, -maxTurn, maxTurn), heading);
+        }else{
+            setPowerCentic(Range.clip(gamepad.left_stick_x, -maxMove, maxMove), Range.clip(gamepad.left_stick_y, -maxMove, maxMove), Range.clip(-gamepad.right_stick_x, -maxTurn, maxTurn), heading);
+        }
     }
 
     public void driveCentric(Gamepad gamepad, double turnScale, double maxMove, double maxTurn, double heading){
@@ -184,6 +197,10 @@ public class Mecanum_Drive{
         PID_Y.setTargetPosition(targetPos.getY());
         PID_Z.setTargetPosition(target_heading);
 
-        setPowerCentic(PID_X.update(currentPos.getX()), -PID_Y.update(currentPos.getY()), -PID_Z.update(heading), currentPos.getHeading());
+        if(!blue) {
+            setPowerCentic(PID_X.update(currentPos.getX()), -PID_Y.update(currentPos.getY()), -PID_Z.update(heading), currentPos.getHeading());
+        }else {
+            setPowerCentic(PID_X.update(currentPos.getX()), PID_Y.update(currentPos.getY()), PID_Z.update(heading), currentPos.getHeading());
+        }
     }
 }

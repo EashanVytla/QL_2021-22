@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Wrapper.GamepadEx;
 @TeleOp
 public class Servo_TesterRelease extends LinearOpMode {
     //Set the hardware mapping name of the servo
-    final String name = "intake_dropper";
+    final String name = "release_arm";
 
     Servo servo;
     private double pos;

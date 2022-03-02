@@ -31,10 +31,11 @@ public class Track_Width_Tuner extends LinearOpMode {
         packet = new TelemetryPacket();
 
         robot.localizer.reset();
+        robot.setBlue();
 
         gamepad1ex = new GamepadEx(gamepad1);
 
-        robot.setStartPose(new Pose2d(0,0, Math.toRadians(90)));
+        //robot.setStartPose(new Pose2d(0,0, Math.toRadians(90)));
         waitForStart();
 
         prevTime = SystemClock.uptimeMillis();

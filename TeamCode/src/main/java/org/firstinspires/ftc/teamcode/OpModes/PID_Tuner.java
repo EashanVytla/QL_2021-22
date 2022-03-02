@@ -14,7 +14,9 @@ public class PID_Tuner extends OpMode {
     @Override
     public void init() {
         robot = new Robot(hardwareMap, telemetry);
+        robot.setStartPose(new Pose2d(0, 0, 0));
         robot.localizer.reset();
+        robot.setBlue();
     }
 
     @Override

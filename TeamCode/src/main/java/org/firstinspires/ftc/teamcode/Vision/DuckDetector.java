@@ -24,8 +24,8 @@ public class DuckDetector extends OpenCvPipeline {
     public Scalar lowerHSV = new Scalar(46.8, 66.6, 80.8);
     public Scalar upperHSV = new Scalar(102.0, 255, 255);
 
-    public double threshold = 6000;
-    public double horizon = 60;
+    public double threshold = 500;
+    public double horizon = 100;
 
     public double blurConstant = 1;
 
@@ -76,9 +76,19 @@ public class DuckDetector extends OpenCvPipeline {
                 Imgproc.rectangle(contoursOnFrameMat, rect.tl(), rect.br(), new Scalar(255, 0, 0), 2);
                 Imgproc.putText(contoursOnFrameMat, String.valueOf(rect.x), rect.tl(), 0, 0.5, new Scalar(255, 255, 255));
 
-                if(rect.x < 200){
+                //Blue Side
+                /*if(rect.x < 70){
                     duckPosition = 0;
-                }else if(rect.x < 350){
+                }else if(rect.x <= 160){
+                    duckPosition = 1;
+                }else{
+                    duckPosition = 2;
+                }*/
+
+                //Red Side
+                if(rect.x > 300){
+                    duckPosition = 0;
+                }else if(rect.x >= 150){
                     duckPosition = 1;
                 }else{
                     duckPosition = 2;

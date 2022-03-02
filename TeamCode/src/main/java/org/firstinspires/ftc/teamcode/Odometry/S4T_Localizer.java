@@ -1,24 +1,17 @@
 package org.firstinspires.ftc.teamcode.Odometry;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.arcrobotics.ftclib.geometry.Rotation2d;
-import com.arcrobotics.ftclib.geometry.Transform2d;
-import com.arcrobotics.ftclib.geometry.Translation2d;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Components.Mecanum_Drive;
 import org.firstinspires.ftc.teamcode.Components.Robot;
 import org.firstinspires.ftc.teamcode.Math.Vector2;
-import org.firstinspires.ftc.teamcode.Wrapper.GamepadEx;
 
 @Config
 public class S4T_Localizer {
-    public static double TRACK_WIDTH1 = 2711.3238217777559663247615718733;
-    public static double TRACK_WIDTH2 = 2851.1016505482130449637837370552;
+    public static double TRACK_WIDTH1 = 2703.5252295662530948720862674681;
+    public static double TRACK_WIDTH2 = 2850.9822843408941234619570742327;
 
     private final double EPSILON = 1e-6;
     private static Pose2d myPose = new Pose2d(0, 0,0);
@@ -48,9 +41,14 @@ public class S4T_Localizer {
     public static double clipping_vert = 0.05;
     public final Vector2d DASHBOARD_OFFSET_FROM_CENTER = new Vector2d(-48, -55);
 
+    public boolean blue;
+
     private TelemetryPacket packet;
 
     public S4T_Localizer(Telemetry telemetry){
+        //False for home field(blue)
+        //True for away field(red)
+        blue = false;
         this.telemetry = telemetry;
 
         /*if(slamra == null){
@@ -132,9 +130,13 @@ public class S4T_Localizer {
         dashboardPos = new Pose2d(myPose.getY() + DASHBOARD_OFFSET_FROM_CENTER.getY(), -myPose.getX() + DASHBOARD_OFFSET_FROM_CENTER.getX(), (2 * Math.PI) - myPose.getHeading());
     }
 
+    public void blue(){
+        blue = true;
+    }
+
     public void reset(){
         myPose = new Pose2d(0, 0, 0);
-        heading = Robot.startPos.getHeading();
+        heading = 0.0/*Robot.startPos.getHeading()*/;
     }
 
     public double angleWrap(double angle){
@@ -216,6 +218,10 @@ public class S4T_Localizer {
     }
 
     public Pose2d getPose(){
+        telemetry.addData("Blue", blue);
+        if(blue){
+            return new Pose2d(-myPose.getX(), myPose.getY(), 2 * Math.PI - myPose.getHeading());
+        }
         return myPose;
     }
 

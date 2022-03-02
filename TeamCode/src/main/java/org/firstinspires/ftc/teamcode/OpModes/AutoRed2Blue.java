@@ -11,8 +11,8 @@ import org.firstinspires.ftc.teamcode.PurePusuit.RobotMovement;
 
 import java.util.ArrayList;
 
-@Autonomous(name = "BlueAuto")
-public class AutoRed2 extends LinearOpMode {
+@Autonomous(name = "RedAuto")
+public class AutoRed2Blue extends LinearOpMode {
 
     private enum State{
         DROP_INTAKE,
@@ -30,16 +30,16 @@ public class AutoRed2 extends LinearOpMode {
     int duckCase = 0;
     boolean gtp = false;
     int cycle = 0;
-    int numCycles = 4;
+    int numCycles = 5;
     ElapsedTime time;
     Robot robot;
     double clearance_dist = -1.7;
-    public static Pose2d PRE_LOADED_FREIGHT_POS = new Pose2d(20.156,20.433, Math.toRadians(180));
-    public static Pose2d FREIGHT_POS = new Pose2d(6.7,26.46, Math.toRadians(215));
-    public static Pose2d LOW_GOAL_FREIGHT_POS = new Pose2d(-3, 32, Math.toRadians(257));
-    public static Pose2d CAROUSEL_POS = new Pose2d(68,13, Math.toRadians(180));
-    public static Pose2d DEPOT_POS = new Pose2d(-33,-1.6, Math.toRadians(270));
-    public static Pose2d PARK_POS = new Pose2d(-32,4.5, Math.toRadians(270));
+    public static Pose2d PRE_LOADED_FREIGHT_POS = new Pose2d(-20.156,20.433, Math.toRadians(360 - 180));
+    public static Pose2d FREIGHT_POS = new Pose2d(-6.7,26.46, Math.toRadians(360 - 215));
+    public static Pose2d LOW_GOAL_FREIGHT_POS = new Pose2d(3, 32, Math.toRadians(360 - 257));
+    public static Pose2d CAROUSEL_POS = new Pose2d(-68,13, Math.toRadians(360 - 180));
+    public static Pose2d DEPOT_POS = new Pose2d(33,-1.6, Math.toRadians(360 - 270));
+    public static Pose2d PARK_POS = new Pose2d(32,4.5, Math.toRadians(360 - 270));
 
     /*public static Pose2d PRE_LOADED_FREIGHT_POS = new Pose2d(22.156,20.433, Math.toRadians(180));
     public static Pose2d FREIGHT_POS = new Pose2d(6.78,26.46, Math.toRadians(215));
@@ -94,7 +94,7 @@ public class AutoRed2 extends LinearOpMode {
                     points.add(new CurvePoint(new Pose2d(0, 0, Math.toRadians(0)), 1d, 1d, 25));
                     points.add(new CurvePoint(duckCase == 0 ? LOW_GOAL_FREIGHT_POS : FREIGHT_POS, 1d, 1d, 25));
 
-                    if (robot.getPos().vec().distTo(points.get(points.size() - 1).toVec()) <= (duckCase == 0 ? 1 : 3.0) && Math.abs(robot.getPos().getHeading() - points.get(points.size() - 1).heading) <= (duckCase == 0 ? Math.toRadians(1) : 3.0)) {
+                    if (robot.getPos().vec().distTo(points.get(points.size() - 1).toVec()) <= (duckCase == 0 ? 1 : 3.0) && Math.abs(robot.getPos().getHeading() - points.get(points.size() - 1).heading) <= (duckCase == 0 ? Math.toRadians(1) : Math.toRadians(3.0))) {
                         if(time.time() > (duckCase == 0 ? 0.25 : 0.15)) {
                             newState(State.CYCLE2);
                         }
@@ -116,7 +116,7 @@ public class AutoRed2 extends LinearOpMode {
 
                 case CAROUSEL:
                     points.add(new CurvePoint(duckCase == 0 ? LOW_GOAL_FREIGHT_POS : FREIGHT_POS, 1d, 1d, 15));
-                    points.add(new CurvePoint(new Pose2d(37.3, PRE_LOADED_FREIGHT_POS.getY() + 0.1, Math.PI), 1d, 1d, 15));
+                    points.add(new CurvePoint(new Pose2d(-37.3, PRE_LOADED_FREIGHT_POS.getY() + 0.1, 2 * Math.PI - Math.PI), 1d, 1d, 15));
                     points.add(new CurvePoint(CAROUSEL_POS, 1d, 1d, 15));
 
                     if(robot.getPos().vec().distTo((duckCase == 0 ? LOW_GOAL_FREIGHT_POS : FREIGHT_POS).vec()) > 25){
@@ -132,7 +132,7 @@ public class AutoRed2 extends LinearOpMode {
                     }
                     break;
                 case RUN_CAROUSEL:
-                    points.add(new CurvePoint(new Pose2d(69.41, 10.5, Math.PI), 0.5d, 1d, 25));
+                    points.add(new CurvePoint(new Pose2d(-69.41, 10.5, 2 * Math.PI - Math.PI), 0.5d, 1d, 25));
                     if(time.time() > 3.5){
                         gtp = false;
                         robot.carousel.stopCarousel();
@@ -143,10 +143,10 @@ public class AutoRed2 extends LinearOpMode {
                     break;
                 case DEPOT:
                     points.add(new CurvePoint(CAROUSEL_POS, 1d, 1d, 15));
-                    points.add(new CurvePoint(new Pose2d(20, DEPOT_POS.getY() - 0.1, Math.toRadians(270)), 1d,1d,15));
+                    points.add(new CurvePoint(new Pose2d(-20, DEPOT_POS.getY() - 0.1, Math.toRadians(360 - 270)), 1d,1d,15));
                     points.add(new CurvePoint(DEPOT_POS, 1.0, 1d, 15));
 
-                    if(robot.getPos().getX() < 0){
+                    if(robot.getPos().getX() > 0){
                         robot.intake.intake(true);
                     }
 
@@ -162,33 +162,29 @@ public class AutoRed2 extends LinearOpMode {
                     robot.slides.setBrake();
 
                     points.add(new CurvePoint(DEPOT_POS, 1d, 1d, 10));
-                    points.add(new CurvePoint(new Pose2d(-40, clearance_dist - 0.1, Math.toRadians(270)), 1d, 1d, 10)); //2nd POINT FOR FREIGHT_CYCLE
-                    points.add(new CurvePoint(new Pose2d(0, clearance_dist - 0.2, Math.toRadians(270)), 1d, 1d, 25)); //2nd POINT FOR FREIGHT_CYCLE
+                    points.add(new CurvePoint(new Pose2d(40, clearance_dist - 0.1, Math.toRadians(360 - 270)), 1d, 1d, 10)); //2nd POINT FOR FREIGHT_CYCLE
+                    points.add(new CurvePoint(new Pose2d(0, clearance_dist - 0.2, Math.toRadians(360 - 270)), 1d, 1d, 10)); //2nd POINT FOR FREIGHT_CYCLE
 
                     points.add(new CurvePoint(FREIGHT_POS, 1.0, 1.0, 25));
 
 
-                    if(robot.getPos().getX() > -5) {
+                    if(robot.getPos().getX() < 5) {
                         robot.slides.setBrake();
                         robot.arm.closeFront();
-                        robot.arm.closeFront();
                         //if(cycle > 2) {
-                            robot.slides.setPosition(1018.71);
+                        robot.slides.setPosition(818.71);
                         //}
                         if(time.time() > 0.1) {
                             robot.arm.V4BPartialOutPose();
                         }
-
-                    }else if(robot.getPos().getX() > -10){
-                        robot.intake.stop();
-                    }else if(robot.getPos().getX() > -30){
+                    }else if(robot.getPos().getX() < 27){
                         robot.intake.intake(false);
                     }
 
                     if (robot.getPos().vec().distTo(points.get(points.size() - 1).toVec()) < 3.0) {
                         if(time.time() > 0.15) {
-                            clearance_dist += 0.35;
-                            DEPOT_POS = new Pose2d(DEPOT_POS.getX(), DEPOT_POS.getY() + 0.35, DEPOT_POS.getHeading());
+                            clearance_dist += 0.2;
+                            DEPOT_POS = new Pose2d(DEPOT_POS.getX(), DEPOT_POS.getY() + 0.2, DEPOT_POS.getHeading());
                             newState(State.CYCLE2);
                         }
                         robot.intake.stop();
@@ -201,24 +197,24 @@ public class AutoRed2 extends LinearOpMode {
                     break;
 
                 case CYCLE2:
-                    points.add(new CurvePoint(FREIGHT_POS, 1d, 1d, 10));
-                    points.add(new CurvePoint(new Pose2d(7, clearance_dist, Math.toRadians(270)), 1d, 1d, 10)); //2nd POINT FOR FREIGHT_CYCLE //2nd POINT FOR FREIGHT_CYCLE
+                    points.add(new CurvePoint(FREIGHT_POS, 1d, 1d, 5));
+                    points.add(new CurvePoint(new Pose2d(-7, clearance_dist, Math.toRadians(360 - 270)), 1d, 1d, 5)); //2nd POINT FOR FREIGHT_CYCLE //2nd POINT FOR FREIGHT_CYCLE
                     if(cycle <= numCycles) {
                         if(cycle >= 3){
-                            points.add(new CurvePoint(DEPOT_POS, 1d, 1d, 10));
-                            points.add(new CurvePoint(new Pose2d(DEPOT_POS.getX() + 0.1 - cycle * 2.0, DEPOT_POS.getY() + cycle * 2.0, DEPOT_POS.getHeading() + Math.toRadians(30)), 1d, 1d, 10));
+                            points.add(new CurvePoint(DEPOT_POS, 1d, 1d, 15));
+                            points.add(new CurvePoint(new Pose2d(DEPOT_POS.getX() - 0.1 + cycle * 2.0, DEPOT_POS.getY() + cycle * 1.0, DEPOT_POS.getHeading() - Math.toRadians(30)), 1d, 1d, 5));
                         }else{
-                            points.add(new CurvePoint(new Pose2d(DEPOT_POS.getX() - cycle * 3.0, DEPOT_POS.getY(), DEPOT_POS.getHeading()), 1d, 1d, 10));
+                            points.add(new CurvePoint(new Pose2d(DEPOT_POS.getX() + cycle * 3.0, DEPOT_POS.getY(), DEPOT_POS.getHeading()), 1d, 1d, 5));
                         }
                     }else{
-                        points.add(new CurvePoint(PARK_POS, 1d, 1d, 10));
+                        points.add(new CurvePoint(PARK_POS, 1d, 1d, 5));
                     }
 
-                    if(robot.getPos().getX() < -10) {
+                    if(robot.getPos().getX() > 10) {
                         robot.intake.intake(true);
                     }
 
-                    if(robot.getPos().vec().distTo(((duckCase == 0 && cycle == 0) ? LOW_GOAL_FREIGHT_POS : FREIGHT_POS).vec()) > 10 && Math.abs(robot.getPos().getHeading() - Math.toRadians(270)) < Math.toRadians(15)) {
+                    if(robot.getPos().vec().distTo(((duckCase == 0 && cycle == 0) ? LOW_GOAL_FREIGHT_POS : FREIGHT_POS).vec()) > 10 && Math.abs(robot.getPos().getHeading() - Math.toRadians(90)) < Math.toRadians(15)) {
                         robot.arm.close();
                         if(time.time() > 0.3) {
                             time.reset();
@@ -239,13 +235,13 @@ public class AutoRed2 extends LinearOpMode {
                     }
 
 
-                    if (robot.getPos().getX() - 1 < points.get(points.size() - 1).x && Math.abs(robot.getPos().getHeading() - points.get(points.size() - 1).heading) < Math.toRadians(2.0)/* || (robot.getPos().getX() < -29 && robot.intake.isBlockIn())*/) {
+                    if (robot.getPos().getX() + 1 > points.get(points.size() - 1).x && Math.abs(robot.getPos().getHeading() - points.get(points.size() - 1).heading) < Math.toRadians(2.0)/* || (robot.getPos().getX() < -29 && robot.intake.isBlockIn())*/) {
                         if(cycle <= numCycles) {
-                            FREIGHT_POS = new Pose2d(FREIGHT_POS.getX(), FREIGHT_POS.getY() + 0.35, FREIGHT_POS.getHeading());
+                            FREIGHT_POS = new Pose2d(FREIGHT_POS.getX(), FREIGHT_POS.getY() - 0.35, FREIGHT_POS.getHeading());
                             cycle++;
                             newState(State.CYCLE);
                         } else {
-                            newState(State.PARK);
+                            newState(State.PARK); //SEt to park
                         }
                     }
                     break;

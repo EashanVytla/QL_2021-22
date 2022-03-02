@@ -31,6 +31,11 @@ public class CurvePoint {
         this.heading = target.getHeading();
     }
 
+    public void flip(){
+        this.x = -this.x;
+        this.heading = 2 * Math.PI - this.heading;
+    }
+
     public CurvePoint(CurvePoint thisPoint){
         this.x = thisPoint.x;
         this.y = thisPoint.y;

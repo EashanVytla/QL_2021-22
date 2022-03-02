@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sun.tools.javac.resources.legacy;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -24,7 +25,7 @@ public class Slides {
     public static double kd = 0.0;//0.0008;
     public static double gff = 0.0;//0.25;
 
-    public static double high_goal_position = 1700;//326;
+    public static double high_goal_position = 1780;//326;
 
     public static double downPower = 1.0;//0.245;
 
@@ -32,6 +33,7 @@ public class Slides {
     Telemetry telemetry;
     public STATE mRobotState;
     DigitalChannel digitalTouch;
+    ElapsedTime time;
 
     public enum STATE{
         AUTOMATION,
@@ -47,6 +49,8 @@ public class Slides {
         controller = new PIDFController(new PIDCoefficients(kp, ki, kd));
         reset();
         mRobotState = STATE.IDLE;
+        time = new ElapsedTime();
+        time.startTime();
         digitalTouch = map.get(DigitalChannel.class, "sensor_digital");
         digitalTouch.setMode(DigitalChannel.Mode.INPUT);
     }
@@ -105,17 +109,13 @@ public class Slides {
         }*/
         if(getPosition() > 50 || mRobotState == STATE.MANUAL) {
             power += gff;
-            telemetry.addLine("Gff on");
-        }else{
-            telemetry.addLine("Gff Off");
         }
         rSlides.setPower(power);
         lSlides.setPower(-power);
     }
 
     public boolean isDown(){
-        boolean state = !digitalTouch.getState();
-        return state;
+        return !digitalTouch.getState();
     }
 
     public void drop(){
@@ -129,12 +129,6 @@ public class Slides {
     boolean prevDown = false;
 
     public void operate(GamepadEx gamepad1, GamepadEx gamepad2){
-        if(isDown() && !prevDown){
-            reset();
-        }
-
-        prevDown = isDown();
-
         if(mRobotState == STATE.MANUAL) {
             setBrake();
             double power = gamepad2.gamepad.right_stick_y;
@@ -146,14 +140,19 @@ public class Slides {
             }
 
             if(gamepad2.isPress(GamepadEx.Control.left_bumper) || gamepad1.isPress(GamepadEx.Control.left_bumper)){
+                time.reset();
                 mRobotState = STATE.AUTOMATION;
             }
         }else if(mRobotState == STATE.AUTOMATION){
             setBrake();
-            if(gamepad2.isPress(GamepadEx.Control.left_bumper)){
+
+            if(gamepad1.isPress(GamepadEx.Control.left_bumper)){
+                time.reset();
                 mRobotState = STATE.DOWN;
             }else{
-                setPosition(V4B_Arm.partialToggle ? 818.71 : high_goal_position);
+                if(time.time() > 0.75 && V4B_Arm.goal == 2) {
+                    setPosition(V4B_Arm.partialToggle ? 818.71 : high_goal_position);
+                }
             }
 
             if(gamepad2.gamepad.right_stick_y >= 0.1){
@@ -166,22 +165,27 @@ public class Slides {
                 setPower(-0.2);
             }else{
                 telemetry.addLine("down");
-                setPower(-0.03);
+                setPower(0.0);
             }
 
-            if(gamepad2.isPress(GamepadEx.Control.left_bumper)){
+            if(gamepad2.isPress(GamepadEx.Control.left_bumper) || gamepad1.isPress(GamepadEx.Control.left_bumper)){
+                time.reset();
                 mRobotState = STATE.AUTOMATION;
             }
 
             if(gamepad2.gamepad.right_stick_y >= 0.1){
+                time.reset();
                 mRobotState = STATE.MANUAL;
             }
         }else if(mRobotState == STATE.DOWN){
-            setCoast();
-            if(getPosition() < 50){
-                mRobotState = STATE.IDLE;
-            }else{
-                setPower(-downPower);
+            if(time.time() > 0.5) {
+                setCoast();
+                if (isDown()) {
+                    reset();
+                    mRobotState = STATE.IDLE;
+                } else {
+                    setPower(-downPower);
+                }
             }
         }
 
