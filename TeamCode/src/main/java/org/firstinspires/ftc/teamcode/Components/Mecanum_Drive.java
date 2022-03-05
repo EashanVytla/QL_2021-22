@@ -36,7 +36,7 @@ public class Mecanum_Drive{
     public static double ki = 0;
     public static double kd = 0.011;
 
-    public static double kpr = 2.9;
+    public static double kpr = 2.5;
     public static double kir = 0;
     public static double kdr = 0.15;
 

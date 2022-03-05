@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Math.Vector2;
 @Config
 public class S4T_Localizer {
     public static double TRACK_WIDTH1 = 2703.5252295662530948720862674681;
-    public static double TRACK_WIDTH2 = 2850.9822843408941234619570742327;
+    public static double TRACK_WIDTH2 = 2853.4889746945914750003169935058;
 
     private final double EPSILON = 1e-6;
     private static Pose2d myPose = new Pose2d(0, 0,0);
@@ -136,7 +136,7 @@ public class S4T_Localizer {
 
     public void reset(){
         myPose = new Pose2d(0, 0, 0);
-        heading = 0.0/*Robot.startPos.getHeading()*/;
+        heading = Robot.startPos.getHeading();
     }
 
     public double angleWrap(double angle){
@@ -218,7 +218,6 @@ public class S4T_Localizer {
     }
 
     public Pose2d getPose(){
-        telemetry.addData("Blue", blue);
         if(blue){
             return new Pose2d(-myPose.getX(), myPose.getY(), 2 * Math.PI - myPose.getHeading());
         }

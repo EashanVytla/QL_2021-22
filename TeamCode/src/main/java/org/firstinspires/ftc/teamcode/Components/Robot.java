@@ -59,7 +59,7 @@ public class Robot {
 
         drive = new Mecanum_Drive(map, telemetry);
         arm = new V4B_Arm(map);
-        intake = new Intake(map);
+        intake = new Intake(map, telemetry);
         slides = new Slides(map, telemetry);
 
         localizer = new S4T_Localizer(telemetry);

@@ -22,11 +22,13 @@ public class Intake {
     private DistanceSensor sensorRange;
     private boolean outtake = false;
     ElapsedTime time;
+    Telemetry telemetry;
 
-    public Intake(HardwareMap map){
+    public Intake(HardwareMap map, Telemetry telemetry){
         intake = new Caching_Motor(map, "intakeL");
         intake_dropper = new Caching_Servo(map, "intake_dropper");
         sensorRange = map.get(DistanceSensor.class, "sensor_range");
+        this.telemetry = telemetry;
 
         intake.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         time = new ElapsedTime();
@@ -34,7 +36,7 @@ public class Intake {
     }
 
     public boolean isBlockIn(){
-        return !(sensorRange.getDistance(DistanceUnit.INCH) > 1.6);
+        return !(sensorRange.getDistance(DistanceUnit.INCH) > 2.2);
     }
 
     public void intake(GamepadEx gamepadEx, GamepadEx gamepad2Ex, Telemetry telemetry){

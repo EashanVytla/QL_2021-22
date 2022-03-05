@@ -85,7 +85,7 @@ public class V4B_Arm {
     }
 
     public void close(){
-        release_servo.setPosition(/*0.45*/0.54);
+        release_servo.setPosition(/*0.45*/0.53);
     }
 
     public void closeFront(){
@@ -94,6 +94,10 @@ public class V4B_Arm {
 
     public void openFront(){
         front.setPosition(0.1);
+    }
+
+    public boolean isOut(){
+        return out;
     }
 
     public void operate(GamepadEx gamepad, GamepadEx gamepad2, Telemetry telemetry){
@@ -105,7 +109,7 @@ public class V4B_Arm {
             out = !out;
         }
 
-        if(gamepad2.isPress(GamepadEx.Control.dpad_up)){
+        if(gamepad2.isPress(GamepadEx.Control.y)){
             if(goal != 2) {
                 goal++;
             }
@@ -116,7 +120,7 @@ public class V4B_Arm {
             }
         }
 
-        if(gamepad2.isPress(GamepadEx.Control.dpad_down)){
+        if(gamepad2.isPress(GamepadEx.Control.a)){
             if(goal != 0) {
                 goal--;
             }
@@ -135,7 +139,7 @@ public class V4B_Arm {
             telemetry.addLine("MODE: Low Goal");
         }
 
-        if(gamepad.isPress(GamepadEx.Control.a) || gamepad2.isPress(GamepadEx.Control.a)){
+        if(gamepad.isPress(GamepadEx.Control.a)){
             partialToggle = !partialToggle;
         }
 

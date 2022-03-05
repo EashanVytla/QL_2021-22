@@ -86,12 +86,12 @@ public class DuckDetector extends OpenCvPipeline {
                 }*/
 
                 //Red Side
-                if(rect.x > 300){
-                    duckPosition = 0;
-                }else if(rect.x >= 150){
+                if(rect.x > 400){
+                    duckPosition = 2;
+                }else if(rect.x >= 300){
                     duckPosition = 1;
                 }else{
-                    duckPosition = 2;
+                    duckPosition = 0;
                 }
             }
         }

@@ -25,7 +25,7 @@ public class Slides {
     public static double kd = 0.0;//0.0008;
     public static double gff = 0.0;//0.25;
 
-    public static double high_goal_position = 1780;//326;
+    public static double high_goal_position = 1612;//326;
 
     public static double downPower = 1.0;//0.245;
 
@@ -53,6 +53,7 @@ public class Slides {
         time.startTime();
         digitalTouch = map.get(DigitalChannel.class, "sensor_digital");
         digitalTouch.setMode(DigitalChannel.Mode.INPUT);
+        setBrake();
     }
 
     public void write(){
@@ -145,13 +146,14 @@ public class Slides {
             }
         }else if(mRobotState == STATE.AUTOMATION){
             setBrake();
-
             if(gamepad1.isPress(GamepadEx.Control.left_bumper)){
                 time.reset();
                 mRobotState = STATE.DOWN;
             }else{
                 if(time.time() > 0.75 && V4B_Arm.goal == 2) {
                     setPosition(V4B_Arm.partialToggle ? 818.71 : high_goal_position);
+                }else if(V4B_Arm.goal == 1){
+                    setPosition(98.5);
                 }
             }
 
@@ -159,11 +161,12 @@ public class Slides {
                 mRobotState = STATE.MANUAL;
             }
         }else if(mRobotState == STATE.IDLE){
-            setCoast();
+            setBrake();
             if(!isDown()){
                 telemetry.addLine("not down");
-                setPower(-0.2);
+                setPower(-0.5);
             }else{
+                reset();
                 telemetry.addLine("down");
                 setPower(0.0);
             }
@@ -178,10 +181,9 @@ public class Slides {
                 mRobotState = STATE.MANUAL;
             }
         }else if(mRobotState == STATE.DOWN){
-            if(time.time() > 0.5) {
-                setCoast();
-                if (isDown()) {
-                    reset();
+            setCoast();
+            if(time.time() > 0.75) {
+                if (getPosition() < 300 || isDown()) {
                     mRobotState = STATE.IDLE;
                 } else {
                     setPower(-downPower);

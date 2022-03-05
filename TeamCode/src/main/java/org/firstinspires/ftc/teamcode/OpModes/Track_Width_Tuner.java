@@ -20,7 +20,7 @@ public class Track_Width_Tuner extends LinearOpMode {
     Robot robot = null;
     boolean running = false;
     boolean running2 = false;
-    double prevTime = 0.0;
+    long prevTime = 0;
 
     GamepadEx gamepad1ex;
     TelemetryPacket packet;
@@ -30,15 +30,12 @@ public class Track_Width_Tuner extends LinearOpMode {
         robot = new Robot(hardwareMap, telemetry);
         packet = new TelemetryPacket();
 
-        robot.localizer.reset();
-        robot.setBlue();
-
         gamepad1ex = new GamepadEx(gamepad1);
+        robot.localizer.reset();
+        robot.setStartPose(new Pose2d(0, 0,Math.toRadians(90)));
 
         //robot.setStartPose(new Pose2d(0,0, Math.toRadians(90)));
         waitForStart();
-
-        prevTime = SystemClock.uptimeMillis();
 
         while (opModeIsActive())
         {
@@ -70,6 +67,7 @@ public class Track_Width_Tuner extends LinearOpMode {
 
             telemetry.addData("Pos: ", robot.getPos());
 
+            telemetry.addData("Refresh Rate", (System.currentTimeMillis() - prevTime)/1000.0);
             telemetry.addData("Right X RAW", robot.getRawRight_X_Dist());
             telemetry.addData("Left X RAW", robot.getRawLeft_X_Dist());
             telemetry.addData("Right Y RAW", robot.getRawRight_Y_Dist());
@@ -81,6 +79,7 @@ public class Track_Width_Tuner extends LinearOpMode {
 
             telemetry.update();
             FtcDashboard.getInstance().sendTelemetryPacket(packet);
+            prevTime = System.currentTimeMillis();
         }
     }
 }
